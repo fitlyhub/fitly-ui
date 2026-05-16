@@ -1,0 +1,295 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --color-fitly-ink: #0f172a;
+  --color-fitly-panel: #f8fafc;
+  --color-fitly-accent: #0f766e;
+  --color-fitly-accent-soft: #99f6e4;
+}
+
+:root {
+  color: var(--color-fitly-ink);
+  background:
+    radial-gradient(circle at top left, rgb(153 246 228 / 0.55), transparent 32%),
+    linear-gradient(180deg, #f8fafc 0%, #ecfeff 100%);
+  font-family: 'IBM Plex Sans', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.auth-language-select {
+  min-width: 96px;
+}
+
+.auth-language-select .ant-select-selector {
+  height: auto !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.auth-language-select .ant-select-content,
+.auth-language-select .ant-select-selection-item {
+  padding-inline-end: 20px !important;
+  color: #0f172a;
+  font-weight: 500;
+  line-height: 1.5rem !important;
+}
+
+.auth-language-select .ant-select-arrow {
+  inset-inline-end: 0;
+  color: #475569;
+}
+
+.workspace-language-select {
+  min-width: 68px;
+}
+
+.workspace-language-select .ant-select-selector {
+  padding: 0 18px 0 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.workspace-language-select .ant-select-selection-item {
+  color: #334155;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5 !important;
+}
+
+.workspace-language-select .ant-select-arrow {
+  inset-inline-end: 0;
+  color: #64748b;
+}
+
+.workspace-sidebar-skeleton .ant-skeleton-paragraph > li {
+  height: 36px !important;
+  background: linear-gradient(90deg, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.16), rgb(255 255 255 / 0.08)) !important;
+}
+
+.workspace-menu-search.ant-input-affix-wrapper {
+  height: 40px;
+  border-color: rgb(20 184 166 / 0.22);
+  background: rgb(15 23 42 / 0.55);
+  color: #f8fafc;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+}
+
+.workspace-menu-search.ant-input-affix-wrapper:hover,
+.workspace-menu-search.ant-input-affix-wrapper-focused {
+  border-color: rgb(45 212 191 / 0.55);
+  background: rgb(15 23 42 / 0.7);
+  box-shadow: 0 0 0 2px rgb(20 184 166 / 0.12);
+}
+
+.workspace-menu-search .ant-input {
+  background: transparent;
+  color: #f8fafc;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.workspace-menu-search .ant-input::placeholder {
+  color: #94a3b8;
+}
+
+.workspace-menu-search .ant-input-clear-icon {
+  color: #94a3b8;
+}
+
+.workspace-menu-search .ant-input-clear-icon:hover {
+  color: #f8fafc;
+}
+
+.workspace-sidebar-scroll {
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  scrollbar-color: rgb(45 212 191 / 0.38) transparent;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+.workspace-sidebar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.workspace-sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.workspace-sidebar-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgb(45 212 191 / 0.28);
+}
+
+.workspace-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgb(45 212 191 / 0.48);
+}
+
+.sales-order-erp-table .ant-table {
+  color: #0f172a;
+}
+
+.sales-order-erp-table .ant-table-thead > tr > th {
+  height: 48px;
+  background: #fff;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sales-order-erp-table .ant-table-tbody > tr > td {
+  height: 56px;
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.sales-order-erp-table .ant-tag {
+  border: 0;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-weight: 600;
+}
+
+.dynamic-table-filter-drawer .ant-drawer-content {
+  border-left: 1px solid #e2e8f0;
+}
+
+.fitly-grid-table .ant-table {
+  color: #0f172a;
+}
+
+.fitly-grid-table-shell,
+.fitly-grid-table .ant-spin-nested-loading,
+.fitly-grid-table .ant-spin-container {
+  height: 100%;
+}
+
+.fitly-grid-table .ant-table-container {
+  border-radius: 0;
+}
+
+.fitly-grid-table .ant-table-thead > tr > th {
+  height: 46px;
+  background: #f8fafc;
+  border-bottom-color: #e2e8f0;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.fitly-resizable-header {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  padding-right: 10px;
+}
+
+.fitly-column-resize-handle {
+  position: absolute;
+  top: -14px;
+  right: -8px;
+  width: 12px;
+  height: 46px;
+  cursor: col-resize;
+  border: 0;
+  background: transparent;
+}
+
+.fitly-column-resize-handle::after {
+  position: absolute;
+  top: 12px;
+  right: 5px;
+  width: 1px;
+  height: 22px;
+  background: #cbd5e1;
+  content: '';
+  opacity: 0;
+  transition: opacity 120ms ease, background 120ms ease;
+}
+
+.fitly-grid-table .ant-table-thead > tr > th:hover .fitly-column-resize-handle::after,
+.fitly-column-resize-handle:hover::after {
+  background: #0f766e;
+  opacity: 1;
+}
+
+.fitly-grid-table .ant-table-tbody > tr > td {
+  height: 56px;
+  border-bottom-color: #edf2f7;
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.fitly-grid-table .ant-table-tbody > tr:hover > td {
+  background: #f8fafc !important;
+}
+
+.fitly-grid-table .ant-table-tbody > tr.fitly-grid-row-selected > td {
+  background: rgb(240 253 250 / 0.78) !important;
+}
+
+.fitly-grid-table .ant-table-tbody > tr.fitly-grid-row-selected:hover > td {
+  background: rgb(204 251 241 / 0.45) !important;
+}
+
+.fitly-grid-table .ant-table-selection-column {
+  min-width: 64px;
+}
+
+.fitly-grid-table .ant-checkbox-checked .ant-checkbox-inner,
+.fitly-grid-table .ant-checkbox-indeterminate .ant-checkbox-inner::after {
+  background-color: #0f766e;
+  border-color: #0f766e;
+}
+
+.fitly-grid-table .ant-checkbox-wrapper:hover .ant-checkbox-inner,
+.fitly-grid-table .ant-checkbox:hover .ant-checkbox-inner {
+  border-color: #0f766e;
+}
+
+.fitly-filter-panel .ant-drawer-content {
+  border-left: 1px solid #e2e8f0;
+}
+
+.fitly-filter-panel .ant-drawer-header,
+.fitly-filter-panel .ant-drawer-footer {
+  border-color: #e2e8f0;
+}
+
+.fitly-page-button.ant-btn {
+  min-width: 34px;
+  height: 34px;
+  border-color: #e2e8f0;
+  border-radius: 6px;
+  color: #475569;
+  font-weight: 700;
+}
+
+.fitly-page-button.ant-btn:hover {
+  border-color: #99f6e4;
+  color: #0f766e;
+}
+
+.fitly-page-button-active.ant-btn,
+.fitly-page-button-active.ant-btn:hover {
+  border-color: #0f766e;
+  background: #0f766e;
+  color: #fff;
+}
