@@ -22,4 +22,6 @@ export type {
   DynamicTableColumn,
   DynamicTableRow,
   DynamicTableSection,
+  DynamicTreeNode,
+  DynamicTreeRecordListSection,
 } from '@/engines/dynamic-page/model/dynamic-page.types';

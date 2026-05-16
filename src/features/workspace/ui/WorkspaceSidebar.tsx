@@ -1,21 +1,16 @@
-import {
-  AppstoreOutlined,
-  DashboardOutlined,
-  DownOutlined,
-  FileTextOutlined,
-  HistoryOutlined,
-  MenuOutlined,
-  SearchOutlined,
-  ShopOutlined,
-  SafetyCertificateOutlined,
-  ShoppingCartOutlined,
-  TeamOutlined,
-  WalletOutlined,
-} from '@ant-design/icons';
 import { Button, Input, Skeleton } from 'antd';
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import { startTransition, useEffect, useMemo, useState } from 'react';
 
+import {
+  brandConfig,
+  DownOutlined,
+  getWorkspaceNavigationIcon,
+  logoClassConfig,
+  logoImageConfig,
+  MenuOutlined,
+  SearchOutlined,
+} from '@/app/config/visual';
 import type {
   WorkspaceModuleKey,
   WorkspaceNavItem,
@@ -28,41 +23,6 @@ interface WorkspaceSidebarProps {
   onCollapse: () => void;
   onSelectModule: (moduleKey: WorkspaceModuleKey) => void;
 }
-
-const moduleIconMap: Record<WorkspaceModuleKey, ReactNode> = {
-  'access-control': <SafetyCertificateOutlined />,
-  customers: <TeamOutlined />,
-  dashboard: <DashboardOutlined />,
-  employees: <TeamOutlined />,
-  finance: <WalletOutlined />,
-  'finance-invoices': <FileTextOutlined />,
-  invoices: <FileTextOutlined />,
-  'price-list': <FileTextOutlined />,
-  products: <FileTextOutlined />,
-  'purchase-orders': <FileTextOutlined />,
-  'purchase-requests': <FileTextOutlined />,
-  'sales-invoices': <FileTextOutlined />,
-  'sales-orders': <ShoppingCartOutlined />,
-  'stock-transfers': <AppstoreOutlined />,
-  vendors: <TeamOutlined />,
-  warehouse: <AppstoreOutlined />,
-};
-
-const navigationGroupIconMap: Record<string, ReactNode> = {
-  administration: <SafetyCertificateOutlined />,
-  finance: <WalletOutlined />,
-  purchase: <FileTextOutlined />,
-  sales: <ShopOutlined />,
-  warehouse: <AppstoreOutlined />,
-};
-
-const getNavigationIcon = (item: WorkspaceNavItem): ReactNode => {
-  if (item.moduleKey) {
-    return moduleIconMap[item.moduleKey];
-  }
-
-  return navigationGroupIconMap[item.key] ?? <HistoryOutlined />;
-};
 
 const normalizeSearchValue = (value: string): string => {
   return value.trim().toLocaleLowerCase();
@@ -174,7 +134,7 @@ export const WorkspaceSidebar = ({
       : openGroups.has(item.key) || selectedPath.has(item.key);
     const isActive = item.moduleKey === activeModuleKey;
     const isDisabled = item.disabled || (!hasChildren && !item.moduleKey);
-    const moduleIcon = getNavigationIcon(item);
+    const moduleIcon = getWorkspaceNavigationIcon(item);
 
     return (
       <div key={item.key}>
@@ -244,19 +204,23 @@ export const WorkspaceSidebar = ({
   };
 
   return (
-    <aside className="relative h-screen overflow-hidden border-b border-teal-900/50 bg-[#031312] px-4 py-4 text-slate-100 shadow-[20px_0_48px_rgba(3,19,18,0.18)] lg:border-r lg:border-b-0">
+    <aside className="relative h-screen overflow-hidden border-b border-teal-900/50 bg-[var(--color-fitly-sidebar)] px-4 py-4 text-slate-100 shadow-[20px_0_48px_rgba(3,19,18,0.18)] lg:border-r lg:border-b-0">
       <div className="flex h-full min-h-0 flex-col">
         <div className="flex shrink-0 items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[linear-gradient(145deg,#3bd0c3,#0f766e)] text-lg font-semibold text-white shadow-[0_10px_24px_rgba(20,184,166,0.28)]">
-              F
+            <div className={logoClassConfig.workspace.mark}>
+              <img
+                alt={logoImageConfig.icon.alt}
+                className={logoClassConfig.workspace.markImage}
+                src={logoImageConfig.icon.src}
+              />
             </div>
             <div className="min-w-0">
               <p className="m-0 truncate text-sm font-semibold uppercase leading-5 text-slate-100">
-                Fitly Platform
+                {brandConfig.platformName}
               </p>
               <p className="m-0 truncate text-xs leading-4 text-slate-300">
-                ERP workspace
+                {brandConfig.workspaceName}
               </p>
             </div>
           </div>

@@ -1,7 +1,7 @@
-import { CloseOutlined } from '@ant-design/icons';
 import { Button, Tooltip } from 'antd';
 import type { ReactElement } from 'react';
 
+import { CloseOutlined } from '@/app/config/visual';
 import type {
   WorkspaceModuleKey,
   WorkspaceNavItem,
@@ -44,6 +44,7 @@ const fallbackLabelMap: Record<WorkspaceModuleKey, string> = {
   finance: 'Finance',
   'finance-invoices': 'Invoices',
   invoices: 'Invoice',
+  organization: 'Organization',
   'price-list': 'Price List',
   products: 'Products',
   'purchase-orders': 'Purchase Orders',
@@ -80,7 +81,7 @@ export const WorkspaceTabs = ({
               className={[
                 'group flex h-10 max-w-[220px] shrink-0 items-center gap-1 rounded-t-md border border-b-0 px-3 text-sm transition',
                 isActive
-                  ? 'border-slate-200 bg-[#eef2f5] text-slate-950 shadow-[inset_0_2px_0_#0f766e]'
+                  ? 'border-slate-200 bg-[var(--color-fitly-app-shell)] text-slate-950 shadow-[inset_0_2px_0_var(--color-fitly-accent)]'
                   : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-950',
               ].join(' ')}
               role="presentation"

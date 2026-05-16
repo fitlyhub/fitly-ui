@@ -1,34 +1,28 @@
 import {
   ArrowLeftOutlined,
-  CheckCircleOutlined,
   CloseOutlined,
   DeleteOutlined,
   DoubleLeftOutlined,
   DoubleRightOutlined,
   DownOutlined,
   DragOutlined,
-  FileExcelOutlined,
   DownloadOutlined,
   FilterOutlined,
   HolderOutlined,
   HomeOutlined,
   LeftOutlined,
-  MailOutlined,
   MenuOutlined,
   MoreOutlined,
-  PaperClipOutlined,
   PlusOutlined,
   PrinterOutlined,
   ReloadOutlined,
   RightOutlined,
   SaveOutlined,
   SearchOutlined,
-  SendOutlined,
   SettingOutlined,
-  ToolOutlined,
   UpOutlined,
   UploadOutlined,
-} from '@ant-design/icons';
+} from '@/app/config/visual';
 import {
   Button,
   Dropdown,
@@ -38,10 +32,11 @@ import {
   Table,
   Tag,
   Tooltip,
+  Tree,
   Typography,
   message,
 } from 'antd';
-import type { MenuProps } from 'antd';
+import type { MenuProps, TreeProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
   useEffect,
@@ -51,17 +46,21 @@ import {
   type DragEvent,
   type Key,
   type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
   type ReactElement,
   type ReactNode,
 } from 'react';
 
 import { DynamicFormRenderer } from '@/engines/dynamic-form';
 import type { DynamicFormValues } from '@/engines/dynamic-form';
+import {
+  dynamicRecordDefaultActionIconConfig,
+  getDynamicRecordActionIcon,
+} from '@/app/config/visual';
 import type {
   DynamicFormSection,
   DynamicPageSchema,
   DynamicPageSection,
-  DynamicRecordActionIcon,
   DynamicRecordDefaultActionKey,
   DynamicRecordDetailField,
   DynamicRecordDetailTab,
@@ -73,6 +72,8 @@ import type {
   DynamicTableColumn,
   DynamicTableRow,
   DynamicTableSection,
+  DynamicTreeNode,
+  DynamicTreeRecordListSection,
 } from '@/engines/dynamic-page/model/dynamic-page.types';
 import { useWorkspaceStore } from '@/features/workspace/store/useWorkspaceStore';
 import { SectionCard } from '@/shared/ui/SectionCard';
@@ -186,34 +187,6 @@ const renderDetailValue = (
     statusMap: field.statusMap,
     title: field.label,
   });
-};
-
-const recordActionIconMap: Record<DynamicRecordActionIcon, ReactElement> = {
-  approve: <CheckCircleOutlined />,
-  attach: <PaperClipOutlined />,
-  download: <DownloadOutlined />,
-  export: <FileExcelOutlined />,
-  import: <UploadOutlined />,
-  mail: <MailOutlined />,
-  new: <PlusOutlined />,
-  print: <PrinterOutlined />,
-  refresh: <ReloadOutlined />,
-  send: <SendOutlined />,
-  tool: <ToolOutlined />,
-  upload: <UploadOutlined />,
-};
-
-const defaultActionIcons: Record<DynamicRecordDefaultActionKey, ReactElement> = {
-  attachFile: <PaperClipOutlined />,
-  create: <PlusOutlined />,
-  exportExcel: <DownloadOutlined />,
-  importExcel: <UploadOutlined />,
-};
-
-const getRecordActionIcon = (
-  icon: DynamicRecordActionIcon | undefined,
-): ReactElement | undefined => {
-  return icon ? recordActionIconMap[icon] : undefined;
 };
 
 const isDefaultActionVisible = (
@@ -569,7 +542,7 @@ const StatsGrid = ({
 };
 
 const toolbarButtonBaseClassName =
-  '!h-9 !rounded-md !px-3 !text-sm !font-semibold';
+  '!h-8 !rounded-md !px-2.5 !text-xs !font-semibold';
 
 const toolbarButtonPrimaryClassName = [
   toolbarButtonBaseClassName,
@@ -582,14 +555,14 @@ const toolbarButtonSecondaryClassName = [
 ].join(' ');
 
 const toolbarFilterButtonClassName =
-  '!h-9 !w-9 !rounded-md shadow-sm';
+  '!h-8 !w-8 !rounded-md shadow-sm';
 
 const toolbarButtonWidthClassNames = {
-  action: '!min-w-[118px]',
-  back: '!min-w-[136px]',
-  md: '!min-w-[100px]',
-  sm: '!min-w-[84px]',
-  xl: '!min-w-[140px]',
+  action: '!min-w-[92px]',
+  back: '!min-w-[118px]',
+  md: '!min-w-[88px]',
+  sm: '!min-w-[72px]',
+  xl: '!min-w-[118px]',
 } as const;
 
 type DynamicColumnBucket = 'hidden' | 'visible';
@@ -827,12 +800,12 @@ const DynamicPagination = ({
   );
 
   return (
-    <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-slate-200 px-4 py-3">
-      <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-700">
+    <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-slate-200 px-3 py-2">
+      <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-700">
         <span>Total {totalRecords} records</span>
         <Select
           aria-label="Rows per page"
-          className="w-[150px]"
+          className="w-[132px]"
           options={[
             { label: '20 per page', value: 20 },
             { label: '50 per page', value: 50 },
@@ -948,34 +921,56 @@ const DynamicGridToolbar = ({
       onClick: () => onNotify('Save'),
       widthClassName: toolbarButtonWidthClassNames.sm,
     },
+  ];
+  const moreItems: MenuProps['items'] = [
     {
       icon: <DeleteOutlined />,
+      key: 'delete',
       label: 'Delete',
-      onClick: () => onNotify('Delete'),
-      widthClassName: toolbarButtonWidthClassNames.md,
     },
     {
       icon: <PrinterOutlined />,
+      key: 'print',
       label: 'Print',
-      onClick: () => onNotify('Print'),
-      widthClassName: toolbarButtonWidthClassNames.sm,
     },
     {
       icon: <UploadOutlined />,
+      key: 'importExcel',
       label: 'Import Excel',
-      onClick: () => onNotify('Import Excel'),
-      widthClassName: toolbarButtonWidthClassNames.xl,
     },
     {
       icon: <DownloadOutlined />,
-      label: 'Export',
-      onClick: () => onNotify('Export'),
-      widthClassName: toolbarButtonWidthClassNames.md,
+      key: 'exportExcel',
+      label: 'Export Excel',
+    },
+    {
+      icon: <MenuOutlined />,
+      key: 'column',
+      label: 'Column',
     },
   ];
+  const handleMoreClick: MenuProps['onClick'] = ({ key }) => {
+    switch (key) {
+      case 'delete':
+        onNotify('Delete');
+        break;
+      case 'print':
+        onNotify('Print');
+        break;
+      case 'importExcel':
+        onNotify('Import Excel');
+        break;
+      case 'exportExcel':
+        onNotify('Export Excel');
+        break;
+      case 'column':
+        onToggleColumnPanel();
+        break;
+    }
+  };
 
   return (
-    <div className="relative flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
+    <div className="relative flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-3 py-2">
       <div className="flex min-w-0 flex-wrap items-center gap-2">
         {toolbarButtons.map((button) => (
           <Button
@@ -993,17 +988,24 @@ const DynamicGridToolbar = ({
           </Button>
         ))}
 
-        <Button
-          aria-expanded={columnPanelOpen}
-          className={[
-            toolbarButtonSecondaryClassName,
-            toolbarButtonWidthClassNames.action,
-          ].join(' ')}
-          icon={<MenuOutlined />}
-          onClick={onToggleColumnPanel}
+        <Dropdown
+          menu={{
+            items: moreItems,
+            onClick: handleMoreClick,
+          }}
+          trigger={['click']}
         >
-          Column <DownOutlined className="ml-1 text-[10px]" />
-        </Button>
+          <Button
+            aria-expanded={columnPanelOpen}
+            className={[
+              toolbarButtonSecondaryClassName,
+              toolbarButtonWidthClassNames.action,
+            ].join(' ')}
+            icon={<MoreOutlined />}
+          >
+            More <DownOutlined className="ml-1 text-[10px]" />
+          </Button>
+        </Dropdown>
 
         <Dropdown
           menu={{
@@ -1051,9 +1053,9 @@ const DynamicFieldDisplay = ({
   label: string;
   value: ReactNode;
 }): ReactElement => (
-  <label className="grid min-w-0 grid-cols-[128px_minmax(0,1fr)] items-center gap-3 text-sm">
+  <label className="grid min-w-0 grid-cols-[112px_minmax(0,1fr)] items-center gap-2 text-xs">
     <span className="truncate font-medium text-slate-600">{label}</span>
-    <span className="min-h-9 min-w-0 truncate rounded-md border border-slate-200 bg-white px-3 py-2 font-medium text-slate-800 shadow-[inset_0_1px_0_rgba(15,23,42,0.02)]">
+    <span className="min-h-8 min-w-0 truncate rounded-md border border-slate-200 bg-white px-2.5 py-1.5 font-medium text-slate-800 shadow-[inset_0_1px_0_rgba(15,23,42,0.02)]">
       {value}
     </span>
   </label>
@@ -1066,8 +1068,8 @@ const DynamicInfoGroup = ({
   children: ReactNode;
   title: string;
 }): ReactElement => (
-  <section className="min-w-0 border-t border-slate-200 pt-4 first:border-t-0 first:pt-0">
-    <h2 className="m-0 mb-3 text-sm font-semibold text-slate-950">{title}</h2>
+  <section className="min-w-0 border-t border-slate-200 pt-3 first:border-t-0 first:pt-0">
+    <h2 className="m-0 mb-2 text-sm font-semibold text-slate-950">{title}</h2>
     {children}
   </section>
 );
@@ -1216,7 +1218,7 @@ const LegacyRecordListSection = ({
         <Button
           className={compact ? '!h-8 !w-8' : '!h-8'}
           disabled={disabled}
-          icon={defaultActionIcons[actionKey]}
+          icon={dynamicRecordDefaultActionIconConfig[actionKey]}
           type={actionKey === 'create' ? 'primary' : 'default'}
           onClick={
             actionKey === 'create'
@@ -1243,7 +1245,7 @@ const LegacyRecordListSection = ({
         <Button
           className={compact ? '!h-8 !w-8' : '!h-8'}
           disabled={disabled}
-          icon={getRecordActionIcon(action.icon)}
+          icon={getDynamicRecordActionIcon(action.icon)}
           type={action.tone === 'primary' ? 'primary' : 'default'}
           onClick={() => notifyToolbarAction(action.label)}
         >
@@ -1637,6 +1639,9 @@ const DynamicChildGrid = ({
 
     return filteredRows.slice(startIndex, startIndex + pageSize);
   }, [currentPage, filteredRows, pageSize]);
+  const shouldCompactGrid = pagedRows.length <= 4;
+  const compactTableBodyHeight =
+    pagedRows.length === 0 ? 88 : Math.max(88, pagedRows.length * 40 + 16);
 
   const handleMoveColumn = (
     columnKey: string,
@@ -1789,7 +1794,7 @@ const DynamicChildGrid = ({
       />
 
       {filterPanelOpen ? (
-        <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-slate-200 bg-slate-50/70 px-4 py-3">
+        <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-slate-200 bg-slate-50/70 px-3 py-2">
           <Input
             allowClear
             aria-label={filterAriaLabel}
@@ -1814,7 +1819,10 @@ const DynamicChildGrid = ({
 
       <div
         ref={tableShellRef}
-        className="fitly-grid-table-shell min-h-0 flex-1 overflow-hidden"
+        className={[
+          'fitly-grid-table-shell min-h-0 overflow-hidden',
+          shouldCompactGrid ? 'fitly-grid-table-shell-compact shrink-0' : 'flex-1',
+        ].join(' ')}
       >
         <Table<DynamicTableRow>
           className="fitly-grid-table"
@@ -1827,7 +1835,10 @@ const DynamicChildGrid = ({
             selectedRowKeys: selectedRows,
             onChange: setSelectedRows,
           }}
-          scroll={{ x: Math.max(scrollWidth, 980), y: tableBodyHeight }}
+          scroll={{
+            x: Math.max(scrollWidth, 980),
+            y: shouldCompactGrid ? compactTableBodyHeight : tableBodyHeight,
+          }}
         />
       </div>
 
@@ -1900,25 +1911,55 @@ const getActionMenu = (
   return { descriptors, items };
 };
 
+const getClampedSplitHeight = (
+  value: number,
+  containerHeight: number,
+  preferredMinHeight: number,
+): number => {
+  const minimumTopPaneHeight = 120;
+  const minimumChildPaneHeight = 170;
+  const maxHeight = Math.max(
+    minimumTopPaneHeight,
+    containerHeight - minimumChildPaneHeight,
+  );
+  const hasRoomForPreferredMin =
+    containerHeight >= preferredMinHeight + minimumChildPaneHeight;
+  const minHeight = hasRoomForPreferredMin
+    ? Math.min(preferredMinHeight, maxHeight)
+    : Math.min(minimumTopPaneHeight, maxHeight);
+
+  return Math.max(minHeight, Math.min(maxHeight, value));
+};
+
 const RecordDetailView = ({
+  embedded = false,
+  initialTopPaneRatio = 0.42,
   isCreating,
+  minTopPaneHeight = 120,
   page,
   row,
   section,
+  showBackButton = true,
+  showBreadcrumb = true,
   onBack,
   onNew,
   onNotify,
 }: {
+  embedded?: boolean;
+  initialTopPaneRatio?: number;
   isCreating: boolean;
+  minTopPaneHeight?: number;
   page: DynamicPageSchema;
   row: DynamicRecordListRow | null;
   section: DynamicRecordListSection;
+  showBackButton?: boolean;
+  showBreadcrumb?: boolean;
   onBack: () => void;
   onNew: () => void;
   onNotify: (label: string) => void;
 }): ReactElement => {
-  const splitInitializedRef = useRef(false);
   const splitRef = useRef<HTMLDivElement>(null);
+  const userResizedSplitRef = useRef(false);
   const detailTabs = useMemo<DynamicRecordDetailTab[]>(() => {
     if (section.detailTabs?.length) {
       return section.detailTabs;
@@ -1947,8 +1988,11 @@ const RecordDetailView = ({
       : section.emptyRecordTitle;
   const actionMenu = getActionMenu(section, row ? 1 : 0);
 
-  const startSplitResize = (event: ReactMouseEvent<HTMLButtonElement>): void => {
+  const startSplitResize = (
+    event: ReactPointerEvent<HTMLButtonElement>,
+  ): void => {
     event.preventDefault();
+    userResizedSplitRef.current = true;
 
     const container = splitRef.current;
 
@@ -1963,43 +2007,60 @@ const RecordDetailView = ({
     document.body.style.cursor = 'row-resize';
     document.body.style.userSelect = 'none';
 
-    const handleMouseMove = (mouseEvent: MouseEvent): void => {
-      const nextHeight = mouseEvent.clientY - containerRect.top;
-      const maxHeight = Math.max(260, containerRect.height - 260);
+    event.currentTarget.setPointerCapture(event.pointerId);
 
-      setTopPaneHeight(Math.max(220, Math.min(maxHeight, nextHeight)));
+    const handlePointerMove = (pointerEvent: PointerEvent): void => {
+      const nextHeight = pointerEvent.clientY - containerRect.top;
+
+      setTopPaneHeight(
+        getClampedSplitHeight(
+          nextHeight,
+          containerRect.height,
+          minTopPaneHeight,
+        ),
+      );
     };
 
-    const handleMouseUp = (): void => {
+    const handlePointerUp = (): void => {
       document.body.style.cursor = originalCursor;
       document.body.style.userSelect = originalUserSelect;
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerUp);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerUp);
   };
 
   useEffect(() => {
     const container = splitRef.current;
 
-    if (!container || splitInitializedRef.current) {
+    if (!container) {
       return;
     }
 
     const updateInitialSplit = (): void => {
-      const containerHeight = container.getBoundingClientRect().height;
-
-      if (containerHeight <= 0 || splitInitializedRef.current) {
+      if (userResizedSplitRef.current) {
         return;
       }
 
-      const maxHeight = Math.max(260, containerHeight - 260);
-      const preferredHeight = Math.floor(containerHeight * 0.46);
+      const containerHeight = container.getBoundingClientRect().height;
 
-      setTopPaneHeight(Math.max(220, Math.min(maxHeight, preferredHeight)));
-      splitInitializedRef.current = true;
+      if (containerHeight <= 0) {
+        return;
+      }
+
+      const preferredHeight = Math.floor(containerHeight * initialTopPaneRatio);
+
+      setTopPaneHeight(
+        getClampedSplitHeight(
+          preferredHeight,
+          containerHeight,
+          minTopPaneHeight,
+        ),
+      );
     };
 
     updateInitialSplit();
@@ -2010,7 +2071,7 @@ const RecordDetailView = ({
     return () => {
       resizeObserver.disconnect();
     };
-  }, []);
+  }, [initialTopPaneRatio, minTopPaneHeight]);
 
   const handleAction = (key: string): void => {
     const descriptor = actionMenu.descriptors.find((item) => item.key === key);
@@ -2019,26 +2080,33 @@ const RecordDetailView = ({
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-4 py-4">
-      <nav
-        aria-label="Breadcrumb"
-        className="flex shrink-0 items-center gap-2 text-sm font-medium text-slate-500"
-      >
-        <HomeOutlined className="text-slate-400" />
-        <span>Home</span>
-        <RightOutlined className="text-[10px] text-slate-300" />
-        <span>{page.badge}</span>
-        <RightOutlined className="text-[10px] text-slate-300" />
-        <button
-          className="cursor-pointer border-0 bg-transparent p-0 text-slate-500 hover:text-teal-700"
-          type="button"
-          onClick={onBack}
+    <div
+      className={[
+        'flex h-full min-h-0 flex-col',
+        embedded ? 'gap-0 py-0' : 'gap-4 py-4',
+      ].join(' ')}
+    >
+      {showBreadcrumb ? (
+        <nav
+          aria-label="Breadcrumb"
+          className="flex shrink-0 items-center gap-2 text-sm font-medium text-slate-500"
         >
-          {section.title}
-        </button>
-        <RightOutlined className="text-[10px] text-slate-300" />
-        <span className="text-slate-900">{activeRecordLabel}</span>
-      </nav>
+          <HomeOutlined className="text-slate-400" />
+          <span>Home</span>
+          <RightOutlined className="text-[10px] text-slate-300" />
+          <span>{page.badge}</span>
+          <RightOutlined className="text-[10px] text-slate-300" />
+          <button
+            className="cursor-pointer border-0 bg-transparent p-0 text-slate-500 hover:text-teal-700"
+            type="button"
+            onClick={onBack}
+          >
+            {section.title}
+          </button>
+          <RightOutlined className="text-[10px] text-slate-300" />
+          <span className="text-slate-900">{activeRecordLabel}</span>
+        </nav>
+      ) : null}
 
       <section
         ref={splitRef}
@@ -2050,26 +2118,28 @@ const RecordDetailView = ({
             flex: childPaneCollapsed ? '1 1 auto' : `0 0 ${topPaneHeight}px`,
           }}
         >
-          <div className="border-b border-slate-200 px-4 py-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex min-w-0 flex-wrap items-center gap-4">
-                <Button
-                  className={[
-                    toolbarButtonSecondaryClassName,
-                    toolbarButtonWidthClassNames.back,
-                  ].join(' ')}
-                  icon={<LeftOutlined />}
-                  onClick={onBack}
-                >
-                  Back to List
-                </Button>
-                <h1 className="m-0 flex min-h-10 items-center text-xl font-semibold leading-10 text-slate-950">
+          <div className="border-b border-slate-200 px-3 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex min-w-0 flex-wrap items-center gap-2">
+                {showBackButton ? (
+                  <Button
+                    className={[
+                      toolbarButtonSecondaryClassName,
+                      toolbarButtonWidthClassNames.back,
+                    ].join(' ')}
+                    icon={<LeftOutlined />}
+                    onClick={onBack}
+                  >
+                    Back to List
+                  </Button>
+                ) : null}
+                <h1 className="m-0 flex min-h-8 items-center text-base font-semibold leading-8 text-slate-950">
                   {section.title}: {activeRecordLabel}
                 </h1>
               </div>
             </div>
 
-            <div className="mt-4 flex flex-wrap items-center gap-3">
+            <div className="mt-3 flex flex-wrap items-center gap-2">
               <Button
                 className={[
                   toolbarButtonSecondaryClassName,
@@ -2100,46 +2170,45 @@ const RecordDetailView = ({
               >
                 Save
               </Button>
-              <Button
-                className={[
-                  toolbarButtonSecondaryClassName,
-                  toolbarButtonWidthClassNames.md,
-                ].join(' ')}
-                icon={<DeleteOutlined />}
-                onClick={() => onNotify('Delete')}
+              <Dropdown
+                menu={{
+                  items: [
+                    { icon: <DeleteOutlined />, key: 'delete', label: 'Delete' },
+                    { icon: <PrinterOutlined />, key: 'print', label: 'Print' },
+                    {
+                      icon: <UploadOutlined />,
+                      key: 'importExcel',
+                      label: 'Import Excel',
+                    },
+                    {
+                      icon: <DownloadOutlined />,
+                      key: 'exportExcel',
+                      label: 'Export Excel',
+                    },
+                  ],
+                  onClick: ({ key }) => {
+                    const labels: Record<string, string> = {
+                      delete: 'Delete',
+                      exportExcel: 'Export Excel',
+                      importExcel: 'Import Excel',
+                      print: 'Print',
+                    };
+
+                    onNotify(labels[String(key)] ?? String(key));
+                  },
+                }}
+                trigger={['click']}
               >
-                Delete
-              </Button>
-              <Button
-                className={[
-                  toolbarButtonSecondaryClassName,
-                  toolbarButtonWidthClassNames.sm,
-                ].join(' ')}
-                icon={<PrinterOutlined />}
-                onClick={() => onNotify('Print')}
-              >
-                Print
-              </Button>
-              <Button
-                className={[
-                  toolbarButtonSecondaryClassName,
-                  toolbarButtonWidthClassNames.xl,
-                ].join(' ')}
-                icon={<UploadOutlined />}
-                onClick={() => onNotify('Import Excel')}
-              >
-                Import Excel
-              </Button>
-              <Button
-                className={[
-                  toolbarButtonSecondaryClassName,
-                  toolbarButtonWidthClassNames.md,
-                ].join(' ')}
-                icon={<DownloadOutlined />}
-                onClick={() => onNotify('Export')}
-              >
-                Export
-              </Button>
+                <Button
+                  className={[
+                    toolbarButtonSecondaryClassName,
+                    toolbarButtonWidthClassNames.action,
+                  ].join(' ')}
+                  icon={<MoreOutlined />}
+                >
+                  More <DownOutlined className="ml-1 text-[10px]" />
+                </Button>
+              </Dropdown>
               <Dropdown
                 menu={{
                   items: actionMenu.items,
@@ -2163,9 +2232,9 @@ const RecordDetailView = ({
             </div>
           </div>
 
-          <div className="px-4 py-4">
+          <div className="px-3 py-3">
             <DynamicInfoGroup title="General">
-              <div className="grid min-w-0 gap-x-6 gap-y-3 lg:grid-cols-2">
+              <div className="grid min-w-0 gap-x-4 gap-y-2 lg:grid-cols-2">
                 {activeDetailFields.map((field) => (
                   <DynamicFieldDisplay
                     key={field.dataIndex}
@@ -2200,21 +2269,21 @@ const RecordDetailView = ({
           <>
             <button
               aria-label={`Resize ${section.title} detail panes`}
-              className="group flex h-3 shrink-0 cursor-row-resize items-center justify-center border-y border-slate-200 bg-slate-50 hover:bg-teal-50"
+              className="group flex h-3 shrink-0 touch-none cursor-row-resize items-center justify-center border-y border-slate-200 bg-slate-50 hover:bg-teal-50"
               type="button"
-              onMouseDown={startSplitResize}
+              onPointerDown={startSplitResize}
             >
               <DragOutlined className="text-xs text-slate-400 group-hover:text-teal-700" />
             </button>
 
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-              <div className="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 px-4">
-                <div className="flex min-w-0 items-center gap-4">
+              <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-200 px-3">
+                <div className="flex min-w-0 items-center gap-4 overflow-x-auto">
                   {detailTabs.map((tab) => (
                     <button
                       key={tab.key}
                       className={[
-                        'h-12 cursor-pointer border-0 border-b-2 bg-transparent px-1 text-sm font-semibold transition',
+                        'h-10 shrink-0 cursor-pointer border-0 border-b-2 bg-transparent px-1 text-sm font-semibold transition',
                         activeChildTab?.key === tab.key
                           ? 'border-teal-700 text-teal-700'
                           : 'border-transparent text-slate-600 hover:text-slate-950',
@@ -2230,7 +2299,7 @@ const RecordDetailView = ({
                 </div>
                 <Button
                   aria-label="Hide child tabs"
-                  className="!h-9 !rounded-md !border-slate-200 !text-slate-600 hover:!border-teal-200 hover:!text-teal-700"
+                  className="!h-8 !rounded-md !border-slate-200 !text-xs !text-slate-600 hover:!border-teal-200 hover:!text-teal-700"
                   icon={<UpOutlined />}
                   onClick={() => {
                     setChildPaneCollapsed(true);
@@ -2564,10 +2633,10 @@ const RecordListSection = ({
         onReset={resetFilters}
       />
 
-      <div className="flex h-full min-h-0 flex-col gap-4 py-4">
+      <div className="flex h-full min-h-0 flex-col gap-3 py-3">
         <nav
           aria-label="Breadcrumb"
-          className="flex shrink-0 items-center gap-2 text-sm font-medium text-slate-500"
+          className="flex shrink-0 items-center gap-2 text-xs font-medium text-slate-500"
         >
           <HomeOutlined className="text-slate-400" />
           <span>Home</span>
@@ -2578,8 +2647,8 @@ const RecordListSection = ({
         </nav>
 
         <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-          <div className="shrink-0 border-b border-slate-200 px-4 py-4">
-            <h1 className="m-0 text-xl font-semibold text-slate-950">
+          <div className="shrink-0 border-b border-slate-200 px-3 py-3">
+            <h1 className="m-0 text-lg font-semibold text-slate-950">
               {section.title}
             </h1>
           </div>
@@ -2672,6 +2741,294 @@ const RecordListSection = ({
             }}
           />
         </section>
+      </div>
+    </>
+  );
+};
+
+const getFirstTreeRecordKey = (
+  nodes: DynamicTreeNode[],
+): string | undefined => {
+  for (const node of nodes) {
+    const recordKey = node.recordKey ?? node.key;
+
+    if (recordKey) {
+      return recordKey;
+    }
+
+    const childRecordKey = getFirstTreeRecordKey(node.children ?? []);
+
+    if (childRecordKey) {
+      return childRecordKey;
+    }
+  }
+
+  return undefined;
+};
+
+const findTreeNode = (
+  nodes: DynamicTreeNode[],
+  key: string,
+): DynamicTreeNode | null => {
+  for (const node of nodes) {
+    if (node.key === key) {
+      return node;
+    }
+
+    const childNode = findTreeNode(node.children ?? [], key);
+
+    if (childNode) {
+      return childNode;
+    }
+  }
+
+  return null;
+};
+
+const filterTreeNodes = (
+  nodes: DynamicTreeNode[],
+  query: string,
+): DynamicTreeNode[] => {
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+
+  if (!normalizedQuery) {
+    return nodes;
+  }
+
+  return nodes.reduce<DynamicTreeNode[]>((result, node) => {
+    const filteredChildren = filterTreeNodes(
+      node.children ?? [],
+      normalizedQuery,
+    );
+    const matchesNode = [node.title, node.description]
+      .filter(Boolean)
+      .some((value) =>
+        String(value).toLocaleLowerCase().includes(normalizedQuery),
+      );
+
+    if (matchesNode || filteredChildren.length > 0) {
+      result.push({
+        ...node,
+        children: filteredChildren,
+      });
+    }
+
+    return result;
+  }, []);
+};
+
+const buildTreeData = (
+  nodes: DynamicTreeNode[],
+): NonNullable<TreeProps['treeData']> =>
+  nodes.map((node) => ({
+    key: node.key,
+    title: (
+      <div className="min-w-0 py-1">
+        <div className="truncate text-sm font-semibold text-slate-800">
+          {node.title}
+        </div>
+        {node.description ? (
+          <div className="truncate text-xs font-medium text-slate-500">
+            {node.description}
+          </div>
+        ) : null}
+      </div>
+    ),
+    children: node.children?.length ? buildTreeData(node.children) : undefined,
+  }));
+
+const TreeRecordListSection = ({
+  page,
+  section,
+}: {
+  page: DynamicPageSchema;
+  section: DynamicTreeRecordListSection;
+}): ReactElement => {
+  const [messageApi, contextHolder] = message.useMessage();
+  const [isCreating, setIsCreating] = useState(false);
+  const [isResizableLayout, setIsResizableLayout] = useState(false);
+  const [treePaneWidth, setTreePaneWidth] = useState(360);
+  const [treeSearch, setTreeSearch] = useState('');
+  const treeSplitRef = useRef<HTMLDivElement>(null);
+  const [activeTreeKey, setActiveTreeKey] = useState(
+    getFirstTreeRecordKey(section.treeNodes) ?? section.recordList.rows[0]?.key ?? '',
+  );
+  const visibleTreeNodes = useMemo(
+    () => filterTreeNodes(section.treeNodes, treeSearch),
+    [section.treeNodes, treeSearch],
+  );
+  const treeData = useMemo(
+    () => buildTreeData(visibleTreeNodes),
+    [visibleTreeNodes],
+  );
+  const activeTreeNode = useMemo(
+    () => findTreeNode(section.treeNodes, activeTreeKey),
+    [activeTreeKey, section.treeNodes],
+  );
+  const activeRecordKey = activeTreeNode?.recordKey ?? activeTreeKey;
+  const activeRow =
+    section.recordList.rows.find((row) => row.key === activeRecordKey) ?? null;
+  const selectedTreeKeys = activeTreeKey ? [activeTreeKey] : [];
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 1280px)');
+    const updateLayoutMode = (): void => {
+      setIsResizableLayout(mediaQuery.matches);
+    };
+
+    updateLayoutMode();
+    mediaQuery.addEventListener('change', updateLayoutMode);
+
+    return () => {
+      mediaQuery.removeEventListener('change', updateLayoutMode);
+    };
+  }, []);
+
+  const notifyToolbarAction = (label: string): void => {
+    const recordLabel =
+      activeRow && section.recordList.columns[0]
+        ? String(
+            activeRow.cells[section.recordList.columns[0].dataIndex] ??
+              section.recordList.title,
+          )
+        : section.recordList.title;
+
+    messageApi.info(`${label}: ${recordLabel}`);
+  };
+
+  const startTreePaneResize = (
+    event: ReactPointerEvent<HTMLButtonElement>,
+  ): void => {
+    event.preventDefault();
+
+    const container = treeSplitRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    const containerRect = container.getBoundingClientRect();
+    const originalCursor = document.body.style.cursor;
+    const originalUserSelect = document.body.style.userSelect;
+
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    event.currentTarget.setPointerCapture(event.pointerId);
+
+    const handlePointerMove = (pointerEvent: PointerEvent): void => {
+      const maxTreeWidth = Math.max(320, containerRect.width - 640);
+      const nextWidth = pointerEvent.clientX - containerRect.left;
+
+      setTreePaneWidth(Math.max(300, Math.min(maxTreeWidth, nextWidth)));
+    };
+
+    const handlePointerUp = (): void => {
+      document.body.style.cursor = originalCursor;
+      document.body.style.userSelect = originalUserSelect;
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerUp);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerUp);
+  };
+
+  return (
+    <>
+      {contextHolder}
+      <div
+        ref={treeSplitRef}
+        className="grid h-full min-h-0 grid-cols-1 gap-4 pt-3 pb-1 xl:gap-0"
+        style={
+          isResizableLayout
+            ? {
+                gridTemplateColumns: `${treePaneWidth}px 14px minmax(0, 1fr)`,
+              }
+            : undefined
+        }
+      >
+        <section className="flex min-h-[360px] min-w-0 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm xl:h-full xl:min-h-0">
+          <div className="shrink-0 border-b border-slate-200 px-4 py-4">
+            <p className="m-0 text-xs font-semibold uppercase text-teal-700">
+              {page.badge}
+            </p>
+            <h1 className="m-0 mt-1 text-xl font-semibold text-slate-950">
+              {section.treeTitle}
+            </h1>
+            {section.description ? (
+              <p className="m-0 mt-1 text-sm leading-6 text-slate-500">
+                {section.description}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="shrink-0 border-b border-slate-200 bg-slate-50/70 px-4 py-3">
+            <Input
+              allowClear
+              aria-label={`${section.treeTitle} search`}
+              placeholder={section.treeSearchPlaceholder ?? 'Search tree'}
+              prefix={<SearchOutlined />}
+              value={treeSearch}
+              onChange={(event) => {
+                setTreeSearch(event.target.value);
+              }}
+            />
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-auto p-3">
+            <Tree
+              blockNode
+              defaultExpandAll
+              selectedKeys={selectedTreeKeys}
+              treeData={treeData}
+              onSelect={(selectedKeys) => {
+                const nextTreeKey = selectedKeys[0];
+
+                if (nextTreeKey === undefined) {
+                  return;
+                }
+
+                setActiveTreeKey(String(nextTreeKey));
+                setIsCreating(false);
+              }}
+            />
+          </div>
+        </section>
+
+        <div className="hidden min-h-0 items-stretch justify-center px-1 xl:flex">
+          <button
+            aria-label="Resize organization tree and detail layout"
+            className="group flex h-full w-3 cursor-col-resize items-center justify-center rounded-md border border-transparent bg-transparent hover:border-teal-100 hover:bg-teal-50"
+            type="button"
+            onPointerDown={startTreePaneResize}
+          >
+            <span className="h-14 w-1 rounded-full bg-slate-300 transition group-hover:bg-teal-600" />
+          </button>
+        </div>
+
+        <div className="min-h-[720px] min-w-0 xl:h-full xl:min-h-0">
+          <RecordDetailView
+            embedded
+            initialTopPaneRatio={0.72}
+            isCreating={isCreating}
+            minTopPaneHeight={320}
+            page={page}
+            row={isCreating ? null : activeRow}
+            section={section.recordList}
+            showBackButton={false}
+            showBreadcrumb={false}
+            onBack={() => {
+              setIsCreating(false);
+            }}
+            onNew={() => {
+              setIsCreating(true);
+            }}
+            onNotify={notifyToolbarAction}
+          />
+        </div>
       </div>
     </>
   );
@@ -2863,6 +3220,14 @@ export const DynamicPageRenderer = ({
           case 'record-list':
             return (
               <RecordListSection
+                key={section.id}
+                page={page}
+                section={section}
+              />
+            );
+          case 'tree-record-list':
+            return (
+              <TreeRecordListSection
                 key={section.id}
                 page={page}
                 section={section}

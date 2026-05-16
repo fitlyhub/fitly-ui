@@ -148,6 +148,25 @@ export interface DynamicRecordListSection {
   rows: DynamicRecordListRow[];
 }
 
+export interface DynamicTreeNode {
+  key: string;
+  title: string;
+  description?: string;
+  recordKey?: string;
+  children?: DynamicTreeNode[];
+}
+
+export interface DynamicTreeRecordListSection {
+  id: string;
+  type: 'tree-record-list';
+  title: string;
+  description?: string;
+  treeTitle: string;
+  treeSearchPlaceholder?: string;
+  treeNodes: DynamicTreeNode[];
+  recordList: DynamicRecordListSection;
+}
+
 export interface DynamicFormSection {
   id: string;
   type: 'form';
@@ -165,6 +184,7 @@ export type DynamicPageSection =
   | DynamicStatsSection
   | DynamicTableSection
   | DynamicRecordListSection
+  | DynamicTreeRecordListSection
   | DynamicFormSection;
 
 export interface DynamicPageSchema {

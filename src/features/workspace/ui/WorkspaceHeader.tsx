@@ -1,13 +1,16 @@
+import { Avatar, Badge, Button, Popover, Select, Tooltip } from 'antd';
+import type { ReactElement } from 'react';
+
 import {
   BellOutlined,
+  brandConfig,
+  logoClassConfig,
+  logoImageConfig,
   LogoutOutlined,
   MailOutlined,
   MenuOutlined,
   QuestionCircleOutlined,
-} from '@ant-design/icons';
-import { Avatar, Badge, Button, Popover, Select, Tooltip } from 'antd';
-import type { ReactElement } from 'react';
-
+} from '@/app/config/visual';
 import type { AuthLanguage, UserSession } from '@/features/auth/model/auth.types';
 import type { WorkspaceModuleSchema } from '@/features/workspace/model/workspace.types';
 
@@ -61,15 +64,19 @@ export const WorkspaceHeader = ({
             />
           ) : null}
           <div className="flex min-w-0 items-center gap-2.5">
-            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-teal-700 text-base font-semibold text-white shadow-sm">
-              F
+            <div className={logoClassConfig.workspace.headerMark}>
+              <img
+                alt={logoImageConfig.icon.alt}
+                className={logoClassConfig.workspace.markImage}
+                src={logoImageConfig.icon.src}
+              />
             </div>
             <div className="min-w-0">
-              <p className="m-0 truncate text-sm font-semibold uppercase leading-5 text-slate-950">
-                Fitly
+              <p className={`${logoClassConfig.workspace.title} text-slate-950`}>
+                {brandConfig.productName}
               </p>
-              <p className="m-0 hidden truncate text-xs leading-4 text-slate-500 sm:block">
-                ERP workspace
+              <p className={`${logoClassConfig.workspace.subtitle} hidden text-slate-500 sm:block`}>
+                {brandConfig.workspaceName}
               </p>
             </div>
           </div>
@@ -80,7 +87,7 @@ export const WorkspaceHeader = ({
             <Button
               aria-label="Email support"
               className="!h-10 !w-10 !rounded-lg !border-slate-200 !text-slate-600 hover:!border-teal-300 hover:!text-teal-700"
-              href="mailto:support@fitly.vn"
+              href={`mailto:${brandConfig.supportEmail}`}
               icon={<MailOutlined />}
             />
           </Tooltip>
@@ -107,11 +114,11 @@ export const WorkspaceHeader = ({
                 </p>
                 <Button
                   block
-                  href="mailto:support@fitly.vn"
+                  href={`mailto:${brandConfig.supportEmail}`}
                   icon={<MailOutlined />}
                   type="primary"
                 >
-                  support@fitly.vn
+                  {brandConfig.supportEmail}
                 </Button>
               </div>
             }

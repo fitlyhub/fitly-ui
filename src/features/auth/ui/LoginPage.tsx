@@ -5,6 +5,10 @@ import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { z } from 'zod';
 
 import {
+  typographyClassConfig,
+  visualClassConfig,
+} from '@/app/config/visual';
+import {
   authRoutes,
   navigateTo,
   replaceRoute,
@@ -292,13 +296,13 @@ export const LoginPage = ({
     >
       <ProjectLogo />
 
-      <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-        <p className="m-0 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+      <div className={visualClassConfig.surface.infoPanel}>
+        <p className={typographyClassConfig.panelEyebrow}>
           {copy.companyLabel}
         </p>
         <div className="mt-3 flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="m-0 text-base font-semibold text-slate-900">
+            <p className={typographyClassConfig.panelTitle}>
               {authCompanyName}
             </p>
             <p className="mt-1 mb-0 text-sm text-slate-500">
@@ -308,7 +312,7 @@ export const LoginPage = ({
 
           {canChangeTenant ? (
             <button
-              className="cursor-pointer border-0 bg-transparent p-0 text-sm font-medium text-teal-700 hover:text-teal-800"
+              className={visualClassConfig.action.textButton}
               onClick={onChangeTenant}
               type="button"
             >
@@ -323,7 +327,7 @@ export const LoginPage = ({
       {view === 'login' ? (
         <div className="space-y-6">
           <div className="space-y-1 text-center">
-            <Typography.Title className="!mb-0 !text-3xl !font-semibold !tracking-tight !text-slate-900">
+            <Typography.Title className={typographyClassConfig.pageTitle}>
               {`${copy.loginTitle} ${authCompanyName}`}
             </Typography.Title>
           </div>
@@ -364,7 +368,7 @@ export const LoginPage = ({
                   <Form.Item
                     extra={
                       <button
-                        className="cursor-pointer border-0 bg-transparent p-0 text-sm font-medium text-teal-700 hover:text-teal-800"
+                        className={visualClassConfig.action.textButton}
                         onClick={navigateToForgotPassword}
                         type="button"
                       >
@@ -391,7 +395,7 @@ export const LoginPage = ({
 
               <Button
                 block
-                className="!mt-6 !h-11 !rounded-xl !border-0 !bg-teal-700 !font-medium hover:!bg-teal-800"
+                className={`!mt-6 ${visualClassConfig.action.authPrimaryButton}`}
                 htmlType="submit"
                 loading={loginMutation.isPending}
                 size="large"
@@ -407,10 +411,10 @@ export const LoginPage = ({
       {view === 'forgot-password' ? (
         <div className="space-y-6">
           <div className="space-y-2 text-center">
-            <Typography.Title className="!mb-0 !text-3xl !font-semibold !tracking-tight !text-slate-900">
+            <Typography.Title className={typographyClassConfig.pageTitle}>
               {copy.forgotPasswordTitle}
             </Typography.Title>
-            <Typography.Paragraph className="!mb-0 !text-sm !leading-6 !text-slate-500">
+            <Typography.Paragraph className={typographyClassConfig.helperText}>
               {copy.forgotPasswordHelp}
             </Typography.Paragraph>
           </div>
@@ -438,7 +442,7 @@ export const LoginPage = ({
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <Button
-                  className="!h-11 !rounded-xl !border-0 !bg-teal-700 !font-medium hover:!bg-teal-800"
+                  className={visualClassConfig.action.authPrimaryButton}
                   onClick={() => navigateToResetPassword(resetDispatch)}
                   type="primary"
                 >
@@ -487,7 +491,7 @@ export const LoginPage = ({
 
                 <Button
                   block
-                  className="!mt-6 !h-11 !rounded-xl !border-0 !bg-teal-700 !font-medium hover:!bg-teal-800"
+                  className={`!mt-6 ${visualClassConfig.action.authPrimaryButton}`}
                   htmlType="submit"
                   loading={requestPasswordResetMutation.isPending}
                   size="large"
@@ -508,10 +512,10 @@ export const LoginPage = ({
       {view === 'reset-password' ? (
         <div className="space-y-6">
           <div className="space-y-2 text-center">
-            <Typography.Title className="!mb-0 !text-3xl !font-semibold !tracking-tight !text-slate-900">
+            <Typography.Title className={typographyClassConfig.pageTitle}>
               {copy.resetPasswordTitle}
             </Typography.Title>
-            <Typography.Paragraph className="!mb-0 !text-sm !leading-6 !text-slate-500">
+            <Typography.Paragraph className={typographyClassConfig.helperText}>
               {copy.resetPasswordHelp}
             </Typography.Paragraph>
           </div>
@@ -534,7 +538,7 @@ export const LoginPage = ({
 
           {passwordResetTokenQuery.data ? (
             <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <p className="m-0 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+              <p className={typographyClassConfig.panelEyebrow}>
                 {copy.resetPasswordForLabel}
               </p>
               <p className="mt-2 mb-0 text-sm font-medium text-slate-800">
@@ -593,7 +597,7 @@ export const LoginPage = ({
 
               <Button
                 block
-                className="!mt-6 !h-11 !rounded-xl !border-0 !bg-teal-700 !font-medium hover:!bg-teal-800"
+                className={`!mt-6 ${visualClassConfig.action.authPrimaryButton}`}
                 disabled={!passwordResetTokenQuery.data}
                 htmlType="submit"
                 loading={resetPasswordMutation.isPending}

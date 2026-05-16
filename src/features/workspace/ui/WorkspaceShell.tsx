@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { useState } from 'react';
 
+import { visualClassConfig } from '@/app/config/visual';
 import type { AuthLanguage } from '@/features/auth/model/auth.types';
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
 import { useWorkspaceModuleQuery } from '@/features/workspace/hooks/useWorkspaceModuleQuery';
@@ -44,7 +45,7 @@ export const WorkspaceShell = ({
     : 'grid h-screen overflow-hidden lg:grid-cols-[280px_minmax(0,1fr)]';
 
   return (
-    <div className="h-screen overflow-hidden bg-[#eef2f5]">
+    <div className={`h-screen overflow-hidden ${visualClassConfig.shell.workspaceBackground}`}>
       <div className={shellGridClassName}>
         {!sidebarCollapsed ? (
           <WorkspaceSidebar
@@ -79,7 +80,7 @@ export const WorkspaceShell = ({
             onSelectTab={setActiveModule}
           />
 
-          <main className="min-h-0 flex-1 overflow-auto px-4 pb-4 sm:px-5 lg:px-7">
+          <main className="min-h-0 flex-1 overflow-auto px-4 pb-1 sm:px-5 lg:px-7">
             <WorkspaceContent
               errorMessage={moduleQuery.error?.message}
               isLoading={moduleQuery.isLoading}

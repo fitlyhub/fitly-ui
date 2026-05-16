@@ -7,6 +7,7 @@ export type WorkspaceModuleKey =
   | 'finance'
   | 'finance-invoices'
   | 'invoices'
+  | 'organization'
   | 'price-list'
   | 'products'
   | 'purchase-orders'

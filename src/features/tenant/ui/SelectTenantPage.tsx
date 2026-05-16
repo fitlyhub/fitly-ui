@@ -4,6 +4,10 @@ import { Controller, useForm } from 'react-hook-form';
 import type { ReactElement } from 'react';
 import { z } from 'zod';
 
+import {
+  typographyClassConfig,
+  visualClassConfig,
+} from '@/app/config/visual';
 import { authRoutes, navigateTo } from '@/app/router/app-router';
 import type { AuthLanguage } from '@/features/auth/model/auth.types';
 import { AuthPageShell } from '@/features/auth/ui/AuthPageShell';
@@ -84,16 +88,16 @@ export const SelectTenantPage = ({
       <ProjectLogo />
 
       <div className="space-y-2 text-center">
-        <Typography.Title className="!mb-0 !text-3xl !font-semibold !tracking-tight !text-slate-900">
+        <Typography.Title className={typographyClassConfig.pageTitle}>
           {copy.title}
         </Typography.Title>
-        <Typography.Paragraph className="!mb-0 !text-sm !leading-6 !text-slate-500">
+        <Typography.Paragraph className={typographyClassConfig.helperText}>
           {copy.helper}
         </Typography.Paragraph>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-        <p className="m-0 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+      <div className={visualClassConfig.surface.infoPanel}>
+        <p className={typographyClassConfig.panelEyebrow}>
           {copy.companyLabel}
         </p>
         <p className="mt-2 mb-0 text-base font-semibold text-slate-900">
@@ -138,7 +142,7 @@ export const SelectTenantPage = ({
 
           <Button
             block
-            className="!mt-6 !h-11 !rounded-xl !border-0 !bg-teal-700 !font-medium hover:!bg-teal-800"
+            className={`!mt-6 ${visualClassConfig.action.authPrimaryButton}`}
             htmlType="submit"
             loading={resolveTenantMutation.isPending}
             size="large"

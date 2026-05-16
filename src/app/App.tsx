@@ -9,6 +9,7 @@ import {
   replaceRoute,
   subscribeToNavigation,
 } from '@/app/router/app-router';
+import { visualClassConfig } from '@/app/config/visual';
 import type { AuthLanguage } from '@/features/auth/model/auth.types';
 import { LoginPage } from '@/features/auth/ui/LoginPage';
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
@@ -159,7 +160,7 @@ export const App = (): ReactElement => {
 
   if (bootstrapStatus === 'pending') {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[linear-gradient(180deg,#eef3f7_0%,#dfe6ec_100%)] px-4">
+      <main className={`flex min-h-screen items-center justify-center px-4 ${visualClassConfig.shell.authBackground}`}>
         <div className="flex flex-col items-center gap-4 rounded-[2rem] border border-slate-200 bg-white px-10 py-12 shadow-[0_24px_64px_rgba(15,23,42,0.12)]">
           <Spin size="large" />
           <Typography.Text className="text-slate-600">

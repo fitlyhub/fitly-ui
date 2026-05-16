@@ -7,6 +7,7 @@ import type {
   DynamicStatusDescriptor,
   DynamicTableColumn,
   DynamicTableRow,
+  DynamicTreeNode,
 } from '@/engines/dynamic-page';
 import { userFormMetadataResponse } from '@/features/dynamic-form-demo/metadata/user-form.metadata';
 import type {
@@ -293,6 +294,446 @@ const policyStatusMap: Record<string, DynamicStatusDescriptor> = {
     label: 'Scheduled',
   },
 };
+
+const orgStatusMap: Record<string, DynamicStatusDescriptor> = {
+  active: {
+    color: 'success',
+    label: 'Active',
+  },
+  planned: {
+    color: 'processing',
+    label: 'Planned',
+  },
+  review: {
+    color: 'warning',
+    label: 'Review',
+  },
+};
+
+const organizationColumns: DynamicTableColumn[] = [
+  {
+    key: 'code',
+    title: 'Code',
+    dataIndex: 'code',
+  },
+  {
+    key: 'name',
+    title: 'Organization / Department',
+    dataIndex: 'name',
+  },
+  {
+    key: 'type',
+    title: 'Type',
+    dataIndex: 'type',
+  },
+  {
+    key: 'manager',
+    title: 'Manager',
+    dataIndex: 'manager',
+  },
+  {
+    key: 'status',
+    title: 'Status',
+    dataIndex: 'status',
+    presentation: 'status',
+    statusMap: orgStatusMap,
+  },
+];
+
+const organizationDetailFields: DynamicRecordDetailField[] = [
+  {
+    label: 'Code',
+    dataIndex: 'code',
+  },
+  {
+    label: 'Name',
+    dataIndex: 'name',
+  },
+  {
+    label: 'Type',
+    dataIndex: 'type',
+  },
+  {
+    label: 'Parent unit',
+    dataIndex: 'parent',
+  },
+  {
+    label: 'Manager',
+    dataIndex: 'manager',
+  },
+  {
+    label: 'Cost center',
+    dataIndex: 'costCenter',
+  },
+  {
+    label: 'Location',
+    dataIndex: 'location',
+  },
+  {
+    label: 'Status',
+    dataIndex: 'status',
+    presentation: 'status',
+    statusMap: orgStatusMap,
+  },
+];
+
+const organizationChildColumns: DynamicTableColumn[] = [
+  {
+    key: 'code',
+    title: 'Code',
+    dataIndex: 'code',
+  },
+  {
+    key: 'name',
+    title: 'Name',
+    dataIndex: 'name',
+  },
+  {
+    key: 'type',
+    title: 'Type',
+    dataIndex: 'type',
+  },
+  {
+    key: 'manager',
+    title: 'Manager',
+    dataIndex: 'manager',
+  },
+  {
+    key: 'status',
+    title: 'Status',
+    dataIndex: 'status',
+    presentation: 'status',
+    statusMap: orgStatusMap,
+  },
+];
+
+const organizationEmployeeColumns: DynamicTableColumn[] = [
+  {
+    key: 'employee',
+    title: 'Employee',
+    dataIndex: 'employee',
+  },
+  {
+    key: 'role',
+    title: 'Role',
+    dataIndex: 'role',
+  },
+  {
+    key: 'email',
+    title: 'Email',
+    dataIndex: 'email',
+  },
+];
+
+const organizationDetailTabs: DynamicRecordDetailTab[] = [
+  {
+    key: 'children',
+    label: 'Child Units',
+    columns: organizationChildColumns,
+    rowDataKey: 'children',
+    emptyText: 'No child units',
+  },
+  {
+    key: 'departments',
+    label: 'Departments',
+    columns: organizationChildColumns,
+    rowDataKey: 'departments',
+    emptyText: 'No departments',
+  },
+  {
+    key: 'employees',
+    label: 'Employees',
+    columns: organizationEmployeeColumns,
+    rowDataKey: 'employees',
+    emptyText: 'No employees',
+  },
+];
+
+const organizationRows: DynamicRecordListRow[] = [
+  {
+    key: 'org-fitly',
+    cells: {
+      id: 'org-fitly',
+      code: 'ORG',
+      name: 'Fitly Group',
+      type: 'Legal entity',
+      parent: '-',
+      manager: 'CEO Office',
+      costCenter: 'CC-000',
+      location: 'Ho Chi Minh',
+      status: 'active',
+    },
+    lineRows: [],
+    tabRows: {
+      children: [
+        {
+          id: 'org-hcm',
+          code: 'HCM',
+          name: 'HCM Business Unit',
+          type: 'Business unit',
+          manager: 'Lan Nguyen',
+          status: 'active',
+        },
+        {
+          id: 'org-hn',
+          code: 'HN',
+          name: 'Hanoi Branch',
+          type: 'Business unit',
+          manager: 'Minh Tran',
+          status: 'active',
+        },
+      ],
+      departments: [],
+      employees: [],
+    },
+  },
+  {
+    key: 'org-hcm',
+    cells: {
+      id: 'org-hcm',
+      code: 'HCM',
+      name: 'HCM Business Unit',
+      type: 'Business unit',
+      parent: 'Fitly Group',
+      manager: 'Lan Nguyen',
+      costCenter: 'CC-100',
+      location: 'Ho Chi Minh',
+      status: 'active',
+    },
+    lineRows: [],
+    tabRows: {
+      children: [],
+      departments: [
+        {
+          id: 'dept-hcm-sales',
+          code: 'SAL-HCM',
+          name: 'HCM Sales Department',
+          type: 'Department',
+          manager: 'Anh Pham',
+          status: 'active',
+        },
+        {
+          id: 'dept-hcm-ops',
+          code: 'OPS-HCM',
+          name: 'HCM Operations Department',
+          type: 'Department',
+          manager: 'Duc Hoang',
+          status: 'review',
+        },
+      ],
+      employees: [
+        {
+          id: 'emp-hcm-1',
+          employee: 'Anh Pham',
+          role: 'Sales Manager',
+          email: 'anh.pham@fitly.local',
+        },
+      ],
+    },
+  },
+  {
+    key: 'dept-hcm-sales',
+    cells: {
+      id: 'dept-hcm-sales',
+      code: 'SAL-HCM',
+      name: 'HCM Sales Department',
+      type: 'Department',
+      parent: 'HCM Business Unit',
+      manager: 'Anh Pham',
+      costCenter: 'CC-110',
+      location: 'Ho Chi Minh',
+      status: 'active',
+    },
+    lineRows: [],
+    tabRows: {
+      children: [],
+      departments: [],
+      employees: [
+        {
+          id: 'emp-hcm-sales-1',
+          employee: 'Mai Nguyen',
+          role: 'Account Executive',
+          email: 'mai.nguyen@fitly.local',
+        },
+        {
+          id: 'emp-hcm-sales-2',
+          employee: 'Quang Pham',
+          role: 'Sales Operations',
+          email: 'quang.pham@fitly.local',
+        },
+      ],
+    },
+  },
+  {
+    key: 'dept-hcm-ops',
+    cells: {
+      id: 'dept-hcm-ops',
+      code: 'OPS-HCM',
+      name: 'HCM Operations Department',
+      type: 'Department',
+      parent: 'HCM Business Unit',
+      manager: 'Duc Hoang',
+      costCenter: 'CC-120',
+      location: 'Ho Chi Minh',
+      status: 'review',
+    },
+    lineRows: [],
+    tabRows: {
+      children: [],
+      departments: [],
+      employees: [
+        {
+          id: 'emp-hcm-ops-1',
+          employee: 'Minh Le',
+          role: 'Operations Lead',
+          email: 'minh.le@fitly.local',
+        },
+      ],
+    },
+  },
+  {
+    key: 'org-hn',
+    cells: {
+      id: 'org-hn',
+      code: 'HN',
+      name: 'Hanoi Branch',
+      type: 'Business unit',
+      parent: 'Fitly Group',
+      manager: 'Minh Tran',
+      costCenter: 'CC-200',
+      location: 'Hanoi',
+      status: 'active',
+    },
+    lineRows: [],
+    tabRows: {
+      children: [],
+      departments: [
+        {
+          id: 'dept-hn-finance',
+          code: 'FIN-HN',
+          name: 'Hanoi Finance Department',
+          type: 'Department',
+          manager: 'Helena Tran',
+          status: 'active',
+        },
+        {
+          id: 'dept-hn-procurement',
+          code: 'PRC-HN',
+          name: 'Hanoi Procurement Department',
+          type: 'Department',
+          manager: 'Nora Vu',
+          status: 'planned',
+        },
+      ],
+      employees: [
+        {
+          id: 'emp-hn-1',
+          employee: 'Minh Tran',
+          role: 'Branch Director',
+          email: 'minh.tran@fitly.local',
+        },
+      ],
+    },
+  },
+  {
+    key: 'dept-hn-finance',
+    cells: {
+      id: 'dept-hn-finance',
+      code: 'FIN-HN',
+      name: 'Hanoi Finance Department',
+      type: 'Department',
+      parent: 'Hanoi Branch',
+      manager: 'Helena Tran',
+      costCenter: 'CC-210',
+      location: 'Hanoi',
+      status: 'active',
+    },
+    lineRows: [],
+    tabRows: {
+      children: [],
+      departments: [],
+      employees: [
+        {
+          id: 'emp-hn-fin-1',
+          employee: 'Helena Tran',
+          role: 'Finance Manager',
+          email: 'helena.tran@fitly.local',
+        },
+      ],
+    },
+  },
+  {
+    key: 'dept-hn-procurement',
+    cells: {
+      id: 'dept-hn-procurement',
+      code: 'PRC-HN',
+      name: 'Hanoi Procurement Department',
+      type: 'Department',
+      parent: 'Hanoi Branch',
+      manager: 'Nora Vu',
+      costCenter: 'CC-220',
+      location: 'Hanoi',
+      status: 'planned',
+    },
+    lineRows: [],
+    tabRows: {
+      children: [],
+      departments: [],
+      employees: [
+        {
+          id: 'emp-hn-prc-1',
+          employee: 'Nora Vu',
+          role: 'Procurement Lead',
+          email: 'nora.vu@fitly.local',
+        },
+      ],
+    },
+  },
+];
+
+const organizationTreeNodes: DynamicTreeNode[] = [
+  {
+    key: 'org-fitly',
+    title: 'Fitly Group',
+    description: 'Legal entity',
+    children: [
+      {
+        key: 'org-hcm',
+        title: 'HCM Business Unit',
+        description: 'Business unit',
+        children: [
+          {
+            key: 'dept-hcm-sales',
+            title: 'HCM Sales Department',
+            description: 'Department',
+          },
+          {
+            key: 'dept-hcm-ops',
+            title: 'HCM Operations Department',
+            description: 'Department',
+          },
+        ],
+      },
+      {
+        key: 'org-hn',
+        title: 'Hanoi Branch',
+        description: 'Business unit',
+        children: [
+          {
+            key: 'dept-hn-finance',
+            title: 'Hanoi Finance Department',
+            description: 'Department',
+          },
+          {
+            key: 'dept-hn-procurement',
+            title: 'Hanoi Procurement Department',
+            description: 'Department',
+          },
+        ],
+      },
+    ],
+  },
+];
 
 const accessPolicyFormFields: DynamicFormFieldSchema[] = [
   {
@@ -1142,6 +1583,12 @@ export const workspaceNavigation: WorkspaceNavItem[] = [
         description: 'Master data, onboarding, and org changes',
       },
       {
+        key: 'organization',
+        moduleKey: 'organization',
+        label: 'Organization',
+        description: 'Tree-based organization and department master data',
+      },
+      {
         key: 'access-control',
         moduleKey: 'access-control',
         label: 'Access Control',
@@ -1838,6 +2285,73 @@ const workspaceModules: Record<WorkspaceModuleKey, WorkspaceModuleSchema> = {
         successMessage: 'Employee profile saved from metadata.',
         snapshotTitle: 'Last employee payload',
         fields: userFormMetadataResponse.fields,
+      },
+    ],
+  },
+  organization: {
+    badge: 'People operations',
+    moduleKey: 'organization',
+    title: 'Organization structure',
+    subtitle:
+      'Tree-based organization and department workspace generated from API metadata.',
+    sections: [
+      {
+        id: 'organization-tree-record-list',
+        type: 'tree-record-list',
+        title: 'Organization',
+        description:
+          'Parent units can contain child units, and child units can contain departments.',
+        treeTitle: 'Organization Tree',
+        treeSearchPlaceholder: 'Search unit or department',
+        treeNodes: organizationTreeNodes,
+        recordList: {
+          id: 'organization-record-list',
+          type: 'record-list',
+          title: 'Organization',
+          description:
+            'The right pane reuses the existing dynamic master-detail contract.',
+          createLabel: 'New organization',
+          defaultActions: {
+            attachFile: {
+              label: 'Attach file',
+              visible: true,
+            },
+            create: {
+              label: 'New organization',
+              visible: true,
+            },
+            exportExcel: {
+              label: 'Export Excel',
+              visible: true,
+            },
+            importExcel: {
+              label: 'Import Excel',
+              visible: true,
+            },
+          },
+          emptyRecordTitle: 'New organization',
+          toolbarActions: [
+            {
+              key: 'refresh-organization',
+              label: 'Refresh',
+              icon: 'refresh',
+              scope: 'both',
+            },
+            {
+              key: 'approve-organization',
+              label: 'Approve',
+              icon: 'approve',
+              requiresSelection: true,
+              scope: 'detail',
+              tone: 'primary',
+            },
+          ],
+          columns: organizationColumns,
+          detailFields: organizationDetailFields,
+          detailTabs: organizationDetailTabs,
+          lineColumns: organizationChildColumns,
+          rows: organizationRows,
+        },
       },
     ],
   },
