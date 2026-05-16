@@ -52,6 +52,7 @@ const fallbackLabelMap: Record<WorkspaceModuleKey, string> = {
   'sales-invoices': 'Sales Invoice',
   'sales-orders': 'Sales Order',
   'stock-transfers': 'Stock Transfer',
+  tasks: 'Tasks',
   vendors: 'Vendors',
   warehouse: 'Inventory',
 };

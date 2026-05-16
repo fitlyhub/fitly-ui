@@ -24,4 +24,8 @@ export type {
   DynamicTableSection,
   DynamicTreeNode,
   DynamicTreeRecordListSection,
+  DynamicWorkflowSection,
+  DynamicWorkflowStage,
+  DynamicWorkflowTask,
+  DynamicWorkflowTaskMetaItem,
 } from '@/engines/dynamic-page/model/dynamic-page.types';

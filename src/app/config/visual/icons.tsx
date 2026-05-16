@@ -112,6 +112,7 @@ export const workspaceModuleIconConfig: Record<WorkspaceModuleKey, ReactNode> = 
   'sales-invoices': <FileTextOutlined />,
   'sales-orders': <ShoppingCartOutlined />,
   'stock-transfers': <AppstoreOutlined />,
+  tasks: <CheckCircleOutlined />,
   vendors: <TeamOutlined />,
   warehouse: <AppstoreOutlined />,
 };
@@ -121,6 +122,7 @@ export const navigationGroupIconConfig: Record<string, ReactNode> = {
   finance: <WalletOutlined />,
   purchase: <FileTextOutlined />,
   sales: <ShopOutlined />,
+  task: <CheckCircleOutlined />,
   warehouse: <AppstoreOutlined />,
 };
 

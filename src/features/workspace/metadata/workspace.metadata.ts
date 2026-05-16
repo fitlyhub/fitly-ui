@@ -1466,6 +1466,19 @@ export const workspaceNavigation: WorkspaceNavItem[] = [
     description: 'KPI and workflow overview',
   },
   {
+    key: 'task',
+    label: 'Task',
+    description: 'Workflow and approvals',
+    children: [
+      {
+        key: 'task-workflow',
+        moduleKey: 'tasks',
+        label: 'Workflow',
+        description: 'Stage-based task flow',
+      },
+    ],
+  },
+  {
     key: 'sales',
     label: 'Sales',
     description: 'Sales and customer orders',
@@ -1769,6 +1782,206 @@ const workspaceModules: Record<WorkspaceModuleKey, WorkspaceModuleSchema> = {
             owner: 'IT Governance',
             age: '4h',
             status: 'ready',
+          },
+        ],
+      },
+    ],
+  },
+  tasks: {
+    badge: 'Task',
+    moduleKey: 'tasks',
+    title: 'Task workflow',
+    subtitle: 'Stage-based task board generated from dynamic page metadata.',
+    sections: [
+      {
+        id: 'tasks-workflow',
+        type: 'workflow',
+        title: 'Approval workflow',
+        description:
+          'A workflow-style Dynamic UI section for task routing, ownership, and approval state.',
+        emptyStageText: 'No active tasks',
+        stages: [
+          {
+            key: 'intake',
+            title: 'Intake',
+            description: 'Tasks captured from requests and source documents.',
+            tone: 'default',
+          },
+          {
+            key: 'triage',
+            title: 'Triage',
+            description: 'Validate data, route owner, and check policy.',
+            tone: 'processing',
+          },
+          {
+            key: 'approval',
+            title: 'Approval',
+            description: 'Manager or finance approval is required.',
+            tone: 'warning',
+          },
+          {
+            key: 'blocked',
+            title: 'Blocked',
+            description: 'Waiting on external input or correction.',
+            tone: 'error',
+          },
+          {
+            key: 'done',
+            title: 'Done',
+            description: 'Completed tasks ready for audit history.',
+            tone: 'success',
+          },
+        ],
+        tasks: [
+          {
+            key: 'task-001',
+            title: 'Validate supplier onboarding packet',
+            description:
+              'Confirm tax profile, payment terms, and compliance checklist before vendor creation.',
+            stageKey: 'intake',
+            owner: 'Procurement Ops',
+            dueLabel: 'Today 15:00',
+            priority: 'high',
+            statusLabel: 'New request',
+            meta: [
+              {
+                label: 'Source',
+                value: 'Vendor Form',
+              },
+              {
+                label: 'Requester',
+                value: 'Mina Pham',
+              },
+              {
+                label: 'Reference',
+                value: 'VEN-1042',
+              },
+            ],
+          },
+          {
+            key: 'task-002',
+            title: 'Match purchase request budget',
+            description:
+              'Compare department budget availability with the submitted request amount.',
+            stageKey: 'triage',
+            owner: 'Finance Control',
+            dueLabel: 'Tomorrow',
+            priority: 'medium',
+            statusLabel: 'Budget check',
+            meta: [
+              {
+                label: 'Department',
+                value: 'Operations',
+              },
+              {
+                label: 'Amount',
+                value: '$18,200',
+              },
+              {
+                label: 'Reference',
+                value: 'PR-7781',
+              },
+            ],
+          },
+          {
+            key: 'task-003',
+            title: 'Approve sales discount exception',
+            description:
+              'Review margin impact for a quote that exceeds the standard discount threshold.',
+            stageKey: 'approval',
+            owner: 'Sales Director',
+            dueLabel: '4h left',
+            priority: 'critical',
+            statusLabel: 'Awaiting approval',
+            meta: [
+              {
+                label: 'Customer',
+                value: 'Northwind',
+              },
+              {
+                label: 'Discount',
+                value: '18%',
+              },
+              {
+                label: 'Reference',
+                value: 'SO-00042',
+              },
+            ],
+          },
+          {
+            key: 'task-004',
+            title: 'Resolve missing invoice attachment',
+            description:
+              'The invoice cannot move forward until the commercial attachment is uploaded.',
+            stageKey: 'blocked',
+            owner: 'Accounts Payable',
+            dueLabel: 'Overdue',
+            priority: 'high',
+            statusLabel: 'Blocked',
+            meta: [
+              {
+                label: 'Vendor',
+                value: 'Blue River Co',
+              },
+              {
+                label: 'Invoice',
+                value: 'INV-23019',
+              },
+              {
+                label: 'Blocker',
+                value: 'Attachment',
+              },
+            ],
+          },
+          {
+            key: 'task-005',
+            title: 'Publish access review completion',
+            description:
+              'Archive the completed role review and notify governance owners.',
+            stageKey: 'done',
+            owner: 'IT Governance',
+            dueLabel: 'Completed',
+            priority: 'low',
+            statusLabel: 'Done',
+            meta: [
+              {
+                label: 'Policy',
+                value: 'Finance baseline',
+              },
+              {
+                label: 'Completed by',
+                value: 'Lan Nguyen',
+              },
+              {
+                label: 'Reference',
+                value: 'ACR-552',
+              },
+            ],
+          },
+          {
+            key: 'task-006',
+            title: 'Review warehouse transfer variance',
+            description:
+              'Check variance between source picking and destination receiving counts.',
+            stageKey: 'triage',
+            owner: 'Warehouse Lead',
+            dueLabel: 'Today 17:30',
+            priority: 'medium',
+            statusLabel: 'Count review',
+            meta: [
+              {
+                label: 'Transfer',
+                value: 'ST-8830',
+              },
+              {
+                label: 'Variance',
+                value: '12 units',
+              },
+              {
+                label: 'Location',
+                value: 'WH-02',
+              },
+            ],
           },
         ],
       },

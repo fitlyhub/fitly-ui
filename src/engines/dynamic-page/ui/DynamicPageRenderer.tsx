@@ -74,6 +74,8 @@ import type {
   DynamicTableSection,
   DynamicTreeNode,
   DynamicTreeRecordListSection,
+  DynamicWorkflowSection,
+  DynamicWorkflowTask,
 } from '@/engines/dynamic-page/model/dynamic-page.types';
 import { useWorkspaceStore } from '@/features/workspace/store/useWorkspaceStore';
 import { SectionCard } from '@/shared/ui/SectionCard';
@@ -494,6 +496,51 @@ const toneClassMap = {
   positive: 'text-emerald-600',
   warning: 'text-amber-600',
 } as const;
+
+const workflowStageClassMap: Record<
+  DynamicStatusDescriptor['color'],
+  {
+    dot: string;
+    header: string;
+    rail: string;
+  }
+> = {
+  default: {
+    dot: 'bg-slate-400',
+    header: 'text-slate-700',
+    rail: 'border-slate-200 bg-slate-50',
+  },
+  error: {
+    dot: 'bg-rose-500',
+    header: 'text-rose-700',
+    rail: 'border-rose-200 bg-rose-50/55',
+  },
+  processing: {
+    dot: 'bg-sky-500',
+    header: 'text-sky-700',
+    rail: 'border-sky-200 bg-sky-50/55',
+  },
+  success: {
+    dot: 'bg-emerald-500',
+    header: 'text-emerald-700',
+    rail: 'border-emerald-200 bg-emerald-50/55',
+  },
+  warning: {
+    dot: 'bg-amber-500',
+    header: 'text-amber-700',
+    rail: 'border-amber-200 bg-amber-50/55',
+  },
+};
+
+const workflowPriorityColorMap: Record<
+  NonNullable<DynamicWorkflowTask['priority']>,
+  string
+> = {
+  critical: 'red',
+  high: 'orange',
+  low: 'default',
+  medium: 'gold',
+};
 
 const StatsGrid = ({
   section,
@@ -3034,6 +3081,498 @@ const TreeRecordListSection = ({
   );
 };
 
+const workflowContextColumns: DynamicTableColumn[] = [
+  {
+    key: 'label',
+    title: 'Field',
+    dataIndex: 'label',
+  },
+  {
+    key: 'value',
+    title: 'Value',
+    dataIndex: 'value',
+  },
+];
+
+const workflowActivityColumns: DynamicTableColumn[] = [
+  {
+    key: 'time',
+    title: 'Time',
+    dataIndex: 'time',
+  },
+  {
+    key: 'actor',
+    title: 'Actor',
+    dataIndex: 'actor',
+  },
+  {
+    key: 'activity',
+    title: 'Activity',
+    dataIndex: 'activity',
+  },
+];
+
+const getWorkflowStageTitle = (
+  section: DynamicWorkflowSection,
+  stageKey: string,
+): string =>
+  section.stages.find((stage) => stage.key === stageKey)?.title ?? stageKey;
+
+const buildWorkflowRecordDetail = (
+  section: DynamicWorkflowSection,
+  task: DynamicWorkflowTask,
+): {
+  row: DynamicRecordListRow;
+  section: DynamicRecordListSection;
+} => {
+  const contextRows: DynamicTableRow[] = (task.meta ?? []).map((item) => ({
+    id: `${task.key}-context-${item.label}`,
+    label: item.label,
+    value: item.value,
+  }));
+  const activityRows: DynamicTableRow[] = [
+    {
+      id: `${task.key}-activity-opened`,
+      time: task.dueLabel ?? '-',
+      actor: task.owner,
+      activity: task.statusLabel ?? 'Task opened',
+    },
+    {
+      id: `${task.key}-activity-stage`,
+      time: 'Current',
+      actor: 'Workflow',
+      activity: `Stage: ${getWorkflowStageTitle(section, task.stageKey)}`,
+    },
+  ];
+  const row: DynamicRecordListRow = {
+    key: task.key,
+    cells: {
+      description: task.description ?? '-',
+      due: task.dueLabel ?? '-',
+      owner: task.owner,
+      priority: task.priority ?? '-',
+      stage: getWorkflowStageTitle(section, task.stageKey),
+      status: task.statusLabel ?? '-',
+      title: task.title,
+    },
+    detailFields: [
+      {
+        label: 'Title',
+        dataIndex: 'title',
+      },
+      {
+        label: 'Owner',
+        dataIndex: 'owner',
+      },
+      {
+        label: 'Due',
+        dataIndex: 'due',
+      },
+      {
+        label: 'Status',
+        dataIndex: 'status',
+      },
+      {
+        label: 'Priority',
+        dataIndex: 'priority',
+      },
+      {
+        label: 'Stage',
+        dataIndex: 'stage',
+      },
+      {
+        label: 'Description',
+        dataIndex: 'description',
+      },
+    ],
+    lineRows: contextRows,
+    tabRows: {
+      activity: activityRows,
+      context: contextRows,
+    },
+  };
+
+  return {
+    row,
+    section: {
+      id: `${section.id}-detail`,
+      type: 'record-list',
+      title: section.title,
+      createLabel: 'New Task',
+      defaultActions: {
+        attachFile: {
+          label: 'Attach file',
+          visible: true,
+        },
+        create: {
+          label: 'New Task',
+          visible: true,
+        },
+        exportExcel: {
+          visible: false,
+        },
+        importExcel: {
+          visible: false,
+        },
+      },
+      emptyRecordTitle: 'New Task',
+      toolbarActions: [
+        {
+          key: 'approve-task',
+          label: 'Approve',
+          icon: 'approve',
+          requiresSelection: true,
+          scope: 'detail',
+          tone: 'primary',
+        },
+      ],
+      columns: [
+        {
+          key: 'title',
+          title: 'Task',
+          dataIndex: 'title',
+        },
+        {
+          key: 'owner',
+          title: 'Owner',
+          dataIndex: 'owner',
+        },
+        {
+          key: 'status',
+          title: 'Status',
+          dataIndex: 'status',
+        },
+      ],
+      detailFields: row.detailFields ?? [],
+      detailTabs: [
+        {
+          key: 'context',
+          label: 'Context',
+          columns: workflowContextColumns,
+          rowDataKey: 'context',
+          emptyText: 'No context',
+        },
+        {
+          key: 'activity',
+          label: 'Activity',
+          columns: workflowActivityColumns,
+          rowDataKey: 'activity',
+          emptyText: 'No activity',
+        },
+      ],
+      lineColumns: workflowContextColumns,
+      rows: [row],
+    },
+  };
+};
+
+const WorkflowSection = ({
+  page,
+  section,
+}: {
+  page: DynamicPageSchema;
+  section: DynamicWorkflowSection;
+}): ReactElement => {
+  const suppressTaskClickRef = useRef(false);
+  const [activeTaskKey, setActiveTaskKey] = useState<string | null>(null);
+  const [draggedTaskKey, setDraggedTaskKey] = useState<string | null>(null);
+  const [tasks, setTasks] = useState<DynamicWorkflowTask[]>(section.tasks);
+  const tasksByStage = useMemo(() => {
+    return section.stages.reduce<Record<string, DynamicWorkflowTask[]>>(
+      (result, stage) => ({
+        ...result,
+        [stage.key]: tasks.filter((task) => task.stageKey === stage.key),
+      }),
+      {},
+    );
+  }, [section.stages, tasks]);
+  const activeTask = activeTaskKey
+    ? tasks.find((task) => task.key === activeTaskKey) ?? null
+    : null;
+  const activeTaskDetail = useMemo(
+    () => (activeTask ? buildWorkflowRecordDetail(section, activeTask) : null),
+    [activeTask, section],
+  );
+
+  useEffect(() => {
+    setTasks(section.tasks);
+    setActiveTaskKey((currentTaskKey) =>
+      currentTaskKey && section.tasks.some((task) => task.key === currentTaskKey)
+        ? currentTaskKey
+        : null,
+    );
+    setDraggedTaskKey(null);
+  }, [section.tasks]);
+
+  const moveTask = (
+    taskKey: string,
+    nextStageKey: string,
+    beforeTaskKey?: string,
+  ): void => {
+    setTasks((currentTasks) => {
+      const movingTask = currentTasks.find((task) => task.key === taskKey);
+
+      if (!movingTask) {
+        return currentTasks;
+      }
+
+      const nextMovingTask = {
+        ...movingTask,
+        stageKey: nextStageKey,
+      };
+      const remainingTasks = currentTasks.filter((task) => task.key !== taskKey);
+
+      if (!beforeTaskKey) {
+        return [...remainingTasks, nextMovingTask];
+      }
+
+      const targetIndex = remainingTasks.findIndex(
+        (task) => task.key === beforeTaskKey,
+      );
+
+      if (targetIndex === -1) {
+        return [...remainingTasks, nextMovingTask];
+      }
+
+      return [
+        ...remainingTasks.slice(0, targetIndex),
+        nextMovingTask,
+        ...remainingTasks.slice(targetIndex),
+      ];
+    });
+  };
+
+  const suppressNextTaskClick = (): void => {
+    suppressTaskClickRef.current = true;
+    window.setTimeout(() => {
+      suppressTaskClickRef.current = false;
+    }, 0);
+  };
+
+  const handleDropOnStage = (
+    stageKey: string,
+    event: DragEvent<HTMLElement>,
+  ): void => {
+    event.preventDefault();
+
+    if (!draggedTaskKey) {
+      return;
+    }
+
+    moveTask(draggedTaskKey, stageKey);
+    suppressNextTaskClick();
+    setDraggedTaskKey(null);
+  };
+
+  const handleDropOnTask = (
+    stageKey: string,
+    targetTaskKey: string,
+    event: DragEvent<HTMLElement>,
+  ): void => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!draggedTaskKey || draggedTaskKey === targetTaskKey) {
+      return;
+    }
+
+    moveTask(draggedTaskKey, stageKey, targetTaskKey);
+    suppressNextTaskClick();
+    setDraggedTaskKey(null);
+  };
+
+  if (activeTaskDetail) {
+    return (
+      <RecordDetailView
+        isCreating={false}
+        page={page}
+        row={activeTaskDetail.row}
+        section={activeTaskDetail.section}
+        onBack={() => {
+          setActiveTaskKey(null);
+        }}
+        onNew={() => {
+          setActiveTaskKey(null);
+          message.info(`New task in ${section.title}`);
+        }}
+        onNotify={(label) => {
+          message.info(`${label}: ${activeTaskDetail.row.cells.title}`);
+        }}
+      />
+    );
+  }
+
+  return (
+    <section className="flex min-h-[720px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="shrink-0 border-b border-slate-200 px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
+            <Typography.Title className="!m-0 !text-xl !font-semibold !text-slate-950">
+              {section.title}
+            </Typography.Title>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              className={toolbarButtonSecondaryClassName}
+              icon={<ReloadOutlined />}
+              onClick={() => {
+                message.info(`Refresh ${section.title}`);
+              }}
+            >
+              Refresh
+            </Button>
+            <Button
+              className={toolbarButtonPrimaryClassName}
+              icon={<PlusOutlined />}
+              onClick={() => {
+                message.info(`New task in ${section.title}`);
+              }}
+            >
+              New Task
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-x-auto bg-slate-100/60 p-3">
+        <div
+          className="grid min-h-full gap-3"
+          style={{
+            gridTemplateColumns: `repeat(${section.stages.length}, minmax(280px, 1fr))`,
+          }}
+        >
+          {section.stages.map((stage) => {
+            const stageTasks = tasksByStage[stage.key] ?? [];
+            const stageClasses =
+              workflowStageClassMap[stage.tone ?? 'default'];
+
+            return (
+              <div
+                key={stage.key}
+                className={[
+                  'flex min-h-0 flex-col rounded-lg border p-3',
+                  draggedTaskKey ? 'ring-1 ring-inset ring-teal-500/20' : '',
+                  stageClasses.rail,
+                ].join(' ')}
+                data-workflow-stage-key={stage.key}
+                onDragOver={(event) => {
+                  event.preventDefault();
+                }}
+                onDrop={(event) => {
+                  handleDropOnStage(stage.key, event);
+                }}
+              >
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={[
+                          'h-2.5 w-2.5 shrink-0 rounded-full',
+                          stageClasses.dot,
+                        ].join(' ')}
+                      />
+                      <h2
+                        className={[
+                          'm-0 truncate text-sm font-semibold',
+                          stageClasses.header,
+                        ].join(' ')}
+                      >
+                        {stage.title}
+                      </h2>
+                    </div>
+                    {stage.description ? (
+                      <p className="m-0 mt-1 line-clamp-2 text-xs leading-5 text-slate-500">
+                        {stage.description}
+                      </p>
+                    ) : null}
+                  </div>
+                  <span className="rounded bg-white px-2 py-0.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
+                    {stageTasks.length}
+                  </span>
+                </div>
+
+                <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
+                  {stageTasks.length > 0 ? (
+                    stageTasks.map((task) => {
+                      const isDragging = draggedTaskKey === task.key;
+
+                      return (
+                        <button
+                          key={task.key}
+                          className={[
+                            'w-full cursor-grab rounded-md border bg-white p-3 text-left shadow-sm transition active:cursor-grabbing',
+                            isDragging
+                              ? 'border-teal-500 opacity-55 ring-2 ring-teal-500/15'
+                              : 'border-slate-200 hover:border-teal-200 hover:shadow',
+                          ].join(' ')}
+                          data-workflow-task-key={task.key}
+                          draggable
+                          type="button"
+                          onClick={() => {
+                            if (suppressTaskClickRef.current) {
+                              return;
+                            }
+
+                            setActiveTaskKey(task.key);
+                          }}
+                          onDragEnd={() => {
+                            setDraggedTaskKey(null);
+                          }}
+                          onDragOver={(event) => {
+                            event.preventDefault();
+                          }}
+                          onDragStart={(event) => {
+                            setDraggedTaskKey(task.key);
+                            event.dataTransfer.effectAllowed = 'move';
+                            event.dataTransfer.setData('text/plain', task.key);
+                          }}
+                          onDrop={(event) => {
+                            handleDropOnTask(stage.key, task.key, event);
+                          }}
+                        >
+                          <div className="flex min-w-0 items-start justify-between gap-2">
+                            <p className="m-0 min-w-0 flex-1 text-sm font-semibold leading-5 text-slate-950">
+                              {task.title}
+                            </p>
+                            {task.priority ? (
+                              <Tag color={workflowPriorityColorMap[task.priority]}>
+                                {task.priority}
+                              </Tag>
+                            ) : null}
+                          </div>
+                          {task.description ? (
+                            <p className="m-0 mt-2 line-clamp-2 text-xs leading-5 text-slate-500">
+                              {task.description}
+                            </p>
+                          ) : null}
+                          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500">
+                            <span className="rounded bg-slate-100 px-2 py-1">
+                              {task.owner}
+                            </span>
+                            {task.dueLabel ? (
+                              <span className="rounded bg-slate-100 px-2 py-1">
+                                {task.dueLabel}
+                              </span>
+                            ) : null}
+                          </div>
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <div className="rounded-md border border-dashed border-slate-300 bg-white/70 p-4 text-center text-sm font-medium text-slate-500">
+                      {section.emptyStageText ?? 'No tasks'}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const TableSection = ({
   section,
 }: {
@@ -3228,6 +3767,14 @@ export const DynamicPageRenderer = ({
           case 'tree-record-list':
             return (
               <TreeRecordListSection
+                key={section.id}
+                page={page}
+                section={section}
+              />
+            );
+          case 'workflow':
+            return (
+              <WorkflowSection
                 key={section.id}
                 page={page}
                 section={section}

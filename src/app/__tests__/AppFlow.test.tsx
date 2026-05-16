@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -271,5 +271,48 @@ describe('App shell flow', () => {
     expect(
       await screen.findByText('Purchase order approvals'),
     ).toBeInTheDocument();
+  });
+
+  it('renders the task workflow dynamic UI module', async () => {
+    useAuthStore.getState().signIn({
+      accessToken: 'access_tenant_001_admin',
+      email: 'admin',
+      id: '100001',
+      name: 'Admin',
+      refreshToken: 'refresh_tenant_001_admin',
+      role: 'Operations Director',
+      tenantCode: 'fitly-demo',
+      tenantId: 'tenant_001',
+      tenantName: 'Fitly Demo',
+      userId: '100001',
+      username: 'admin',
+      workspace: 'Fitly Demo',
+    });
+    useWorkspaceStore.getState().setActiveModule('tasks');
+
+    const { container } = renderWithProviders(<App />);
+
+    expect(await screen.findByRole('heading', { name: 'Task workflow' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Approval workflow' })).toBeInTheDocument();
+
+    const sourceTask = container.querySelector(
+      '[data-workflow-task-key="task-001"]',
+    );
+    const doneStage = container.querySelector(
+      '[data-workflow-stage-key="done"]',
+    );
+    const dataTransfer = {
+      effectAllowed: 'move',
+      setData: vi.fn(),
+    };
+
+    expect(sourceTask).not.toBeNull();
+    expect(doneStage).not.toBeNull();
+
+    fireEvent.dragStart(sourceTask as HTMLElement, { dataTransfer });
+    fireEvent.dragOver(doneStage as HTMLElement, { dataTransfer });
+    fireEvent.drop(doneStage as HTMLElement, { dataTransfer });
+
+    expect(doneStage).toHaveTextContent('Validate supplier onboarding packet');
   });
 });

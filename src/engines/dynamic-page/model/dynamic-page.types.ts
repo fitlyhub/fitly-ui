@@ -167,6 +167,40 @@ export interface DynamicTreeRecordListSection {
   recordList: DynamicRecordListSection;
 }
 
+export interface DynamicWorkflowStage {
+  key: string;
+  title: string;
+  description?: string;
+  tone?: DynamicStatusTone;
+}
+
+export interface DynamicWorkflowTaskMetaItem {
+  label: string;
+  value: string;
+}
+
+export interface DynamicWorkflowTask {
+  key: string;
+  title: string;
+  description?: string;
+  stageKey: string;
+  owner: string;
+  dueLabel?: string;
+  priority?: 'low' | 'medium' | 'high' | 'critical';
+  statusLabel?: string;
+  meta?: DynamicWorkflowTaskMetaItem[];
+}
+
+export interface DynamicWorkflowSection {
+  id: string;
+  type: 'workflow';
+  title: string;
+  description?: string;
+  emptyStageText?: string;
+  stages: DynamicWorkflowStage[];
+  tasks: DynamicWorkflowTask[];
+}
+
 export interface DynamicFormSection {
   id: string;
   type: 'form';
@@ -185,6 +219,7 @@ export type DynamicPageSection =
   | DynamicTableSection
   | DynamicRecordListSection
   | DynamicTreeRecordListSection
+  | DynamicWorkflowSection
   | DynamicFormSection;
 
 export interface DynamicPageSchema {

@@ -15,6 +15,7 @@ export type WorkspaceModuleKey =
   | 'sales-invoices'
   | 'sales-orders'
   | 'stock-transfers'
+  | 'tasks'
   | 'vendors'
   | 'warehouse'
   | 'access-control';
