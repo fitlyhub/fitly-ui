@@ -22,7 +22,7 @@ export interface DynamicHeroSection {
 
 export interface DynamicStatItem {
   label: string;
-  value: string;
+  value: string | number;
   helper?: string;
   tone?: 'neutral' | 'positive' | 'warning';
 }
@@ -191,12 +191,20 @@ export interface DynamicWorkflowTask {
   meta?: DynamicWorkflowTaskMetaItem[];
 }
 
+export interface DynamicWorkflowSummaryItem {
+  label: string;
+  value: string | number;
+  helper?: string;
+  tone?: 'neutral' | 'positive' | 'warning';
+}
+
 export interface DynamicWorkflowSection {
   id: string;
   type: 'workflow';
   title: string;
   description?: string;
   emptyStageText?: string;
+  summary?: DynamicWorkflowSummaryItem[];
   stages: DynamicWorkflowStage[];
   tasks: DynamicWorkflowTask[];
 }

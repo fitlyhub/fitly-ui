@@ -294,6 +294,10 @@ describe('App shell flow', () => {
 
     expect(await screen.findByRole('heading', { name: 'Task workflow' })).toBeInTheDocument();
     expect(await screen.findByRole('heading', { name: 'Approval workflow' })).toBeInTheDocument();
+    expect(screen.getByText('Open tasks')).toBeInTheDocument();
+    expect(screen.getByText('Due today')).toBeInTheDocument();
+    expect(screen.getAllByText('Blocked').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Completed').length).toBeGreaterThan(0);
 
     const sourceTask = container.querySelector(
       '[data-workflow-task-key="task-001"]',

@@ -1800,6 +1800,32 @@ const workspaceModules: Record<WorkspaceModuleKey, WorkspaceModuleSchema> = {
         description:
           'A workflow-style Dynamic UI section for task routing, ownership, and approval state.',
         emptyStageText: 'No active tasks',
+        summary: [
+          {
+            label: 'Open tasks',
+            value: 5,
+            helper: 'Across active stages',
+            tone: 'neutral',
+          },
+          {
+            label: 'Due today',
+            value: 2,
+            helper: 'Needs same-day action',
+            tone: 'warning',
+          },
+          {
+            label: 'Blocked',
+            value: 1,
+            helper: 'Waiting on input',
+            tone: 'warning',
+          },
+          {
+            label: 'Completed',
+            value: 1,
+            helper: 'Ready for audit',
+            tone: 'positive',
+          },
+        ],
         stages: [
           {
             key: 'intake',

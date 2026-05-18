@@ -2160,12 +2160,12 @@ const RecordDetailView = ({
         className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
       >
         <div
-          className="min-h-0 overflow-y-auto"
+          className="flex min-h-0 flex-col overflow-hidden"
           style={{
             flex: childPaneCollapsed ? '1 1 auto' : `0 0 ${topPaneHeight}px`,
           }}
         >
-          <div className="border-b border-slate-200 px-3 py-3">
+          <div className="shrink-0 border-b border-slate-200 px-3 py-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex min-w-0 flex-wrap items-center gap-2">
                 {showBackButton ? (
@@ -2279,7 +2279,7 @@ const RecordDetailView = ({
             </div>
           </div>
 
-          <div className="px-3 py-3">
+          <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
             <DynamicInfoGroup title="General">
               <div className="grid min-w-0 gap-x-4 gap-y-2 lg:grid-cols-2">
                 {activeDetailFields.map((field) => (
@@ -3293,6 +3293,16 @@ const WorkflowSection = ({
     () => (activeTask ? buildWorkflowRecordDetail(section, activeTask) : null),
     [activeTask, section],
   );
+  const visibleStageColumnCount = Math.min(Math.max(section.stages.length, 1), 4);
+  const visibleStageGapWidth = (visibleStageColumnCount - 1) * 12;
+  const workflowStageColumnWidth = `calc((100% - ${visibleStageGapWidth}px) / ${visibleStageColumnCount})`;
+  const summaryItems = useMemo(
+    () =>
+      (section.summary ?? []).filter(
+        (item) => item.label.trim() && String(item.value).trim(),
+      ),
+    [section.summary],
+  );
 
   useEffect(() => {
     setTasks(section.tasks);
@@ -3410,6 +3420,11 @@ const WorkflowSection = ({
             <Typography.Title className="!m-0 !text-xl !font-semibold !text-slate-950">
               {section.title}
             </Typography.Title>
+            {section.description ? (
+              <p className="m-0 mt-1 text-sm leading-5 text-slate-500">
+                {section.description}
+              </p>
+            ) : null}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button
@@ -3434,11 +3449,41 @@ const WorkflowSection = ({
         </div>
       </div>
 
+      {summaryItems.length > 0 ? (
+        <div className="shrink-0 border-b border-slate-200 bg-white px-3 py-2">
+          <div className="grid grid-cols-4 gap-3">
+            {summaryItems.map((item) => (
+              <div
+                key={item.label}
+                className="min-w-0 rounded-md border border-slate-200 bg-slate-50/80 px-3 py-1.5"
+              >
+                <div className="truncate text-xs font-medium leading-4 text-slate-500">
+                  {item.label}
+                </div>
+                <div className="mt-0.5 truncate text-base font-semibold leading-5 text-slate-950">
+                  {item.value}
+                </div>
+                {item.helper ? (
+                  <div
+                    className={[
+                      'mt-0.5 truncate text-xs leading-4',
+                      toneClassMap[item.tone ?? 'neutral'],
+                    ].join(' ')}
+                  >
+                    {item.helper}
+                  </div>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       <div className="min-h-0 flex-1 overflow-x-auto bg-slate-100/60 p-3">
         <div
           className="grid min-h-full gap-3"
           style={{
-            gridTemplateColumns: `repeat(${section.stages.length}, minmax(280px, 1fr))`,
+            gridTemplateColumns: `repeat(${section.stages.length}, ${workflowStageColumnWidth})`,
           }}
         >
           {section.stages.map((stage) => {
@@ -3500,7 +3545,7 @@ const WorkflowSection = ({
                         <button
                           key={task.key}
                           className={[
-                            'w-full cursor-grab rounded-md border bg-white p-3 text-left shadow-sm transition active:cursor-grabbing',
+                            'w-full cursor-grab rounded-md border bg-white px-3 py-2 text-left shadow-sm transition active:cursor-grabbing',
                             isDragging
                               ? 'border-teal-500 opacity-55 ring-2 ring-teal-500/15'
                               : 'border-slate-200 hover:border-teal-200 hover:shadow',
@@ -3531,9 +3576,9 @@ const WorkflowSection = ({
                           }}
                         >
                           <div className="flex min-w-0 items-start justify-between gap-2">
-                            <p className="m-0 min-w-0 flex-1 text-sm font-semibold leading-5 text-slate-950">
+                            <div className="line-clamp-2 min-w-0 flex-1 text-sm font-semibold leading-5 text-slate-950">
                               {task.title}
-                            </p>
+                            </div>
                             {task.priority ? (
                               <Tag color={workflowPriorityColorMap[task.priority]}>
                                 {task.priority}
@@ -3541,16 +3586,16 @@ const WorkflowSection = ({
                             ) : null}
                           </div>
                           {task.description ? (
-                            <p className="m-0 mt-2 line-clamp-2 text-xs leading-5 text-slate-500">
+                            <div className="mt-1.5 line-clamp-1 text-xs leading-5 text-slate-500">
                               {task.description}
-                            </p>
+                            </div>
                           ) : null}
-                          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500">
-                            <span className="rounded bg-slate-100 px-2 py-1">
+                          <div className="mt-2 flex flex-nowrap items-center gap-1.5 overflow-hidden text-xs font-medium text-slate-500">
+                            <span className="min-w-0 truncate rounded bg-slate-100 px-2 py-0.5">
                               {task.owner}
                             </span>
                             {task.dueLabel ? (
-                              <span className="rounded bg-slate-100 px-2 py-1">
+                              <span className="min-w-0 truncate rounded bg-slate-100 px-2 py-0.5">
                                 {task.dueLabel}
                               </span>
                             ) : null}
